@@ -3,7 +3,7 @@
 Bitácora técnica en Flask del proyecto de Minería de Datos. Trabajo individual.
 
 **Tema asignado:** Migración y Desplazamiento Humano
-**Autor(a):** David Santiago Romero
+**Autor:** David Santiago Romero
 **Repositorio GitHub:** https://github.com/DROMEROH14/migracion-desplazamiento-humano
 **URL de la aplicación Flask publicada:** https://dromeroh14.pythonanywhere.com
 
@@ -81,40 +81,22 @@ git push origin main
 
 > Sugerencia: crea el Pull Request de `feature/etapa-1` hacia `main` en GitHub y haz el merge desde ahí — así queda visible el historial de la Etapa 1 como evidencia de trabajo incremental.
 
-## 3. Publicar la aplicación (Flask en vivo)
+## 3. Despliegue en producción
 
-La app es un proyecto Flask estándar, así que puedes desplegarla en cualquier plataforma que soporte Python. Dos opciones sencillas y gratuitas:
+La aplicación está publicada en PythonAnywhere:
 
-### Opción A — Render.com (recomendada, gratis)
+**URL:** https://dromeroh14.pythonanywhere.com
 
-1. Crea una cuenta en https://render.com y conecta tu cuenta de GitHub.
-2. "New +" → "Web Service" → selecciona tu repositorio.
-3. Configura:
-   - **Branch:** `main`
-   - **Build Command:** `pip install -r requirements.txt`
-   - **Start Command:** `gunicorn app:app`
-4. Deploy. Render te dará una URL pública tipo `https://tu-proyecto.onrender.com`.
-5. Cada `git push` a `main` vuelve a desplegar automáticamente.
+Pasos seguidos para el despliegue:
 
-### Opción B — PythonAnywhere (gratis, sencillo para Flask)
+1. Clonar el repositorio desde una consola Bash de PythonAnywhere.
+2. Crear un entorno virtual e instalar las dependencias del `requirements.txt`.
+3. Configurar la Web App (Manual configuration, Python 3.10) apuntando el
+   *Source code* y el *Working directory* a la carpeta del proyecto, y el
+   *Virtualenv* al entorno creado.
+4. Editar el archivo WSGI para importar la aplicación Flask (`from app import app as application`).
+5. Recargar la Web App.
 
-1. Crea una cuenta en https://www.pythonanywhere.com
-2. Sube el repo (`git clone` desde la consola Bash de PythonAnywhere) o sube el .zip.
-3. Crea una app Web nueva → Framework Flask → apunta el WSGI file al `app.py`.
-4. Instala dependencias: `pip install --user -r requirements.txt`
-5. Recarga la app web; queda publicada en `https://tu-usuario.pythonanywhere.com`.
-
-### Opción C — Railway.app
-
-1. https://railway.app → "New Project" → "Deploy from GitHub repo".
-2. Railway detecta el `Procfile` automáticamente y despliega.
-3. Genera dominio público desde "Settings → Networking → Generate Domain".
-
-## 4. Checklist de entrega
-
-- [ ] Repositorio accesible en GitHub.
-- [ ] Rama `feature/etapa-1` con historial de commits incrementales.
-- [ ] Merge de `feature/etapa-1` a `main` realizado.
-- [ ] Aplicación Flask publicada (URL funcionando).
-- [ ] Las 8 secciones del menú "Etapa 1" cargan correctamente.
-- [ ] `data/dataset_consolidado.csv` tiene ≥10.000 registros y ≥10 variables (cumplido: ~28.000 registros, 16 variables).
+Cada vez que se actualiza el código en `main`, se debe volver a la consola Bash
+de PythonAnywhere, hacer `git pull` dentro de la carpeta del proyecto y recargar
+la Web App desde la pestaña "Web".
