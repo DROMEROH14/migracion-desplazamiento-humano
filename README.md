@@ -3,7 +3,9 @@
 Bitácora técnica en Flask del proyecto de Minería de Datos. Trabajo individual.
 
 **Tema asignado:** Migración y Desplazamiento Humano
-**Autor(a):** _(reemplazar con tu nombre)_
+**Autor(a):** David Santiago Romero
+**Repositorio GitHub:** https://github.com/DROMEROH14/migracion-desplazamiento-humano
+**URL de la aplicación Flask publicada:** https://dromeroh14.pythonanywhere.com
 
 ## Contenido del repositorio
 
