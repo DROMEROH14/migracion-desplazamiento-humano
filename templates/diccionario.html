@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Diccionario de datos{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Submenú 6</span>
+  <h1 class="page-title">Diccionario de datos</h1>
+  <p class="page-desc">Descripción completa y autoexplicativa de cada variable del dataset consolidado.</p>
+</div>
+
+<div class="table-wrap card" style="padding:0;">
+  <table class="tbl">
+    <thead>
+      <tr><th>Variable</th><th>Descripción</th><th>Tipo</th><th>Unidad</th><th>Dominio / valores</th><th>Procedencia</th></tr>
+    </thead>
+    <tbody>
+      {% for r in registros %}
+      <tr>
+        <td><code>{{ r.variable }}</code></td>
+        <td>{{ r.descripcion }}</td>
+        <td>{{ r.tipo }}</td>
+        <td>{{ r.unidad }}</td>
+        <td>{{ r.dominio_valores }}</td>
+        <td>{{ r.procedencia }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

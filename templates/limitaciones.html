@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Limitaciones{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Submenú 8</span>
+  <h1 class="page-title">Limitaciones y consideraciones</h1>
+  <p class="page-desc">Restricciones metodológicas y de alcance que deben tenerse en cuenta al interpretar los resultados de este proyecto.</p>
+</div>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Limitaciones de los datos</h2>
+  <div class="card">
+    <ul class="clean">
+      <li><strong>Cobertura temporal desigual:</strong> el detalle municipal de Colombia (CNMH) solo llega hasta 2014, mientras que los datos globales (IDMC) llegan hasta 2024; no es posible un análisis municipal actualizado con las fuentes usadas en esta etapa.</li>
+      <li><strong>Agregación por periodos en el nivel regional:</strong> los datos de municipios están agrupados en cuatro periodos de varios años, lo que impide identificar el año exacto de los picos de desplazamiento a esa escala.</li>
+      <li><strong>Ausencia de variable poblacional:</strong> no se cuenta aún con series de población por país/departamento/municipio, por lo que no es posible calcular tasas relativas (por cada 100.000 habitantes); solo cifras absolutas.</li>
+      <li><strong>Subregistro:</strong> tanto IDMC como CNMH advierten que sus cifras dependen de fuentes secundarias y pueden no capturar el desplazamiento no declarado.</li>
+      <li><strong>Ausencia de migración venezolana y de refugiados:</strong> las fuentes usadas en esta etapa cubren desplazamiento interno; la migración transfronteriza (ACNUR, Migración Colombia) queda pendiente de integración en etapas posteriores.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Consideraciones metodológicas</h2>
+  <div class="card">
+    <ul class="clean">
+      <li>Las cifras de "personas desplazadas" corresponden a <strong>nuevos desplazamientos registrados en el periodo</strong> (flujo), no necesariamente a personas distintas: una misma persona puede ser desplazada más de una vez y contarse en más de un evento.</li>
+      <li>El "stock" (personas actualmente desplazadas) solo está disponible para el nivel global/nacional a través del IDMC; se debe evitar comparar directamente flujo regional con stock global.</li>
+      <li>La clasificación de causas en "Conflicto" y "Desastre" simplifica realidades más complejas (ej. desplazamientos con causas mixtas o motivadas por crimen organizado no clasificado como conflicto armado).</li>
+    </ul>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Próximos pasos sugeridos</h2>
+  <div class="callout info">
+    Para las siguientes etapas del proyecto se recomienda: (1) incorporar series de población para calcular tasas relativas, (2) integrar datos posteriores a 2014 del Registro Único de Víctimas para el nivel regional, y (3) sumar fuentes de migración venezolana y refugiados para ampliar el alcance más allá del desplazamiento interno.
+  </div>
+</section>
+{% endblock %}

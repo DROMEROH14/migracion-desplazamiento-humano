@@ -1,0 +1,21 @@
+{
+  "total_registros": 28467,
+  "registros_por_nivel": {
+    "Global": 23658,
+    "Regional": 4476,
+    "Nacional": 333
+  },
+  "registros_por_causa": {
+    "Conflicto armado / violencia": 18297,
+    "Desastre natural / climático": 10170
+  },
+  "faltantes_personas_desplazadas": 345,
+  "faltantes_desplazamiento_stock": 27046,
+  "duplicados_exactos": 0,
+  "anio_min": 1980,
+  "anio_max": 2024,
+  "paises_distintos": 212,
+  "departamentos_colombia": 33,
+  "municipios_colombia": 1034,
+  "valores_negativos_personas": 0
+}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Fuentes de datos{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Submenú 4</span>
+  <h1 class="page-title">Fuentes de datos</h1>
+  <p class="page-desc">Mínimo dos fuentes por nivel (global, nacional, regional), clasificadas en primarias, secundarias y terciarias.</p>
+</div>
+
+{% for nivel, color in [("Global","blue"), ("Nacional","purple"), ("Regional","teal")] %}
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Nivel {{ nivel }}</h2>
+  {% for f in fuentes if f.nivel == nivel %}
+  <div class="source-card">
+    <div class="source-head">
+      <div class="source-title">{{ f.nombre }}</div>
+      <span class="badge {{ color }}">{{ f.tipo_fuente }}</span>
+    </div>
+    <dl class="kv-grid">
+      <dt>Institución</dt><dd>{{ f.institucion }}</dd>
+      <dt>URL</dt><dd><a href="{{ f.url }}" target="_blank" style="color:var(--accent)">{{ f.url }}</a></dd>
+      <dt>Cobertura</dt><dd>{{ f.cobertura_geografica }}</dd>
+      <dt>Periodo disponible</dt><dd>{{ f.periodo_disponible }}</dd>
+      <dt>Formato</dt><dd>{{ f.formato }}</dd>
+      <dt>Método de adquisición</dt><dd>{{ f.metodo_adquisicion }}</dd>
+      <dt>Registros aprox.</dt><dd>{{ f.registros_aprox if f.registros_aprox else "Por definir" }}</dd>
+      <dt>Variables</dt><dd>{{ f.variables_disponibles }}</dd>
+      <dt>Fecha de consulta</dt><dd>{{ f.fecha_consulta if f.fecha_consulta else "Pendiente" }}</dd>
+      <dt>Restricciones de uso</dt><dd>{{ f.restricciones_uso }}</dd>
+      <dt>Justificación</dt><dd>{{ f.justificacion }}</dd>
+    </dl>
+  </div>
+  {% endfor %}
+</section>
+{% endfor %}
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+
+<div class="hero">
+  <span class="eyebrow">Bitácora técnica · Etapa 1</span>
+  <h1>Migración y Desplazamiento Humano</h1>
+  <p>Panel de control del proyecto de minería de datos. Integra información de nivel <strong>global</strong>,
+  <strong>nacional (Colombia)</strong> y <strong>regional (municipios)</strong> a partir de fuentes oficiales
+  del IDMC y del Centro Nacional de Memoria Histórica (CNMH).</p>
+  <div class="tags">
+    <span class="badge blue">Global</span>
+    <span class="badge purple">Nacional · Colombia</span>
+    <span class="badge teal">Regional · Municipios</span>
+    <span class="badge warn">{{ stats.anio_min }} – {{ stats.anio_max }}</span>
+  </div>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:22px;">
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.total_registros | kfmt }}</div>
+    <div class="stat-label">Registros consolidados</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.total_personas | kfmt }}</div>
+    <div class="stat-label">Personas desplazadas (suma de eventos)</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.paises }}</div>
+    <div class="stat-label">Países con datos</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ stats.municipios }}</div>
+    <div class="stat-label">Municipios de Colombia</div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:18px;">
+  <div class="card">
+    <h2 class="block-title"><span class="dot"></span>Desplazamiento global por año (flujo anual)</h2>
+    <div class="chart-box"><canvas id="chartGlobal"></canvas></div>
+  </div>
+  <div class="card">
+    <h2 class="block-title"><span class="dot"></span>Colombia · nivel nacional por año</h2>
+    <div class="chart-box"><canvas id="chartColombia"></canvas></div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:18px;">
+  <div class="card">
+    <h2 class="block-title"><span class="dot"></span>Top 10 países (histórico acumulado)</h2>
+    <div class="chart-box tall"><canvas id="chartPaises"></canvas></div>
+  </div>
+  <div class="card">
+    <h2 class="block-title"><span class="dot"></span>Top 10 departamentos de Colombia</h2>
+    <div class="chart-box tall"><canvas id="chartDeptos"></canvas></div>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2 class="block-title"><span class="dot"></span>Distribución por causa</h2>
+    <div class="chart-box"><canvas id="chartCausa"></canvas></div>
+  </div>
+  <div class="card">
+    <h2 class="block-title"><span class="dot"></span>Registros por nivel de análisis</h2>
+    <div class="chart-box"><canvas id="chartNivel"></canvas></div>
+  </div>
+</div>
+
+<p class="footer-note">Fuente de los datos: IDMC (Global Internal Displacement Database) y CNMH (Desplazamiento forzado histórico por municipios). Ver detalle completo en la sección <a href="{{ url_for('fuentes_view') }}" style="color:var(--accent)">Fuentes de datos</a>.</p>
+
+<script>
+const colors = { blue:"#4f8cff", purple:"#7c5cff", teal:"#22d3b8", warn:"#ffb454", danger:"#ff6b6b" };
+Chart.defaults.color = "#94a1bd";
+Chart.defaults.font.family = "Inter, sans-serif";
+Chart.defaults.borderColor = "#232b3d";
+
+function gradientFill(ctx, color){
+  const g = ctx.createLinearGradient(0,0,0,260);
+  g.addColorStop(0, color + "55");
+  g.addColorStop(1, color + "02");
+  return g;
+}
+
+new Chart(document.getElementById('chartGlobal'), {
+  type: 'line',
+  data: { labels: {{ agg.years }}, datasets: [{
+    label: 'Personas desplazadas (global)',
+    data: {{ agg.global_values }},
+    borderColor: colors.blue, backgroundColor: (c)=>gradientFill(c.chart.ctx, colors.blue),
+    fill:true, tension:.35, pointRadius:0, borderWidth:2
+  }]},
+  options: { plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#1c2334'} }, x:{ grid:{display:false} } } }
+});
+
+new Chart(document.getElementById('chartColombia'), {
+  type: 'bar',
+  data: { labels: {{ agg.colombia_years }}, datasets: [{
+    label: 'Colombia',
+    data: {{ agg.colombia_values }},
+    backgroundColor: colors.purple, borderRadius:5, maxBarThickness: 22
+  }]},
+  options: { plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#1c2334'} }, x:{ grid:{display:false} } } }
+});
+
+new Chart(document.getElementById('chartPaises'), {
+  type: 'bar',
+  data: { labels: {{ agg.top_paises_labels }}, datasets: [{
+    data: {{ agg.top_paises_values }},
+    backgroundColor: colors.teal, borderRadius:5
+  }]},
+  options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ grid:{color:'#1c2334'} }, y:{ grid:{display:false} } } }
+});
+
+new Chart(document.getElementById('chartDeptos'), {
+  type: 'bar',
+  data: { labels: {{ agg.top_departamentos_labels }}, datasets: [{
+    data: {{ agg.top_departamentos_values }},
+    backgroundColor: colors.warn, borderRadius:5
+  }]},
+  options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ grid:{color:'#1c2334'} }, y:{ grid:{display:false} } } }
+});
+
+new Chart(document.getElementById('chartCausa'), {
+  type: 'doughnut',
+  data: { labels: {{ agg.por_causa_labels }}, datasets: [{
+    data: {{ agg.por_causa_values }},
+    backgroundColor: [colors.blue, colors.warn], borderWidth:0
+  }]},
+  options: { cutout:'68%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:16}}} }
+});
+
+new Chart(document.getElementById('chartNivel'), {
+  type: 'doughnut',
+  data: { labels: {{ agg.por_nivel_labels }}, datasets: [{
+    data: {{ agg.por_nivel_values }},
+    backgroundColor: [colors.blue, colors.purple, colors.teal], borderWidth:0
+  }]},
+  options: { cutout:'68%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:16}}} }
+});
+</script>
+{% endblock %}

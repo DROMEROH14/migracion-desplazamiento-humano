@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Calidad inicial{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Submenú 7</span>
+  <h1 class="page-title">Diagnóstico inicial de calidad</h1>
+  <p class="page-desc">Identificación de valores faltantes, duplicados, inconsistencias y posibles sesgos, sin aplicar limpieza aún.</p>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:20px;">
+  <div class="stat-card"><div class="stat-value">{{ calidad.faltantes_personas_desplazadas | int }}</div><div class="stat-label">Faltantes en "personas_desplazadas"</div></div>
+  <div class="stat-card"><div class="stat-value">{{ calidad.faltantes_desplazamiento_stock | kfmt }}</div><div class="stat-label">Faltantes en "desplazamiento_stock"</div></div>
+  <div class="stat-card"><div class="stat-value">{{ calidad.duplicados_exactos }}</div><div class="stat-label">Duplicados exactos detectados</div></div>
+  <div class="stat-card"><div class="stat-value">{{ calidad.valores_negativos_personas }}</div><div class="stat-label">Valores negativos detectados</div></div>
+</div>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Hallazgos por variable</h2>
+  <div class="callout info">
+    <strong>desplazamiento_stock</strong> presenta un alto porcentaje de valores vacíos ({{ calidad.faltantes_desplazamiento_stock | kfmt }} de {{ calidad.total_registros | kfmt }}) porque
+    esta variable solo está disponible en la fuente IDMC (nivel Global/Nacional); el nivel Regional (CNMH) no reporta stock acumulado, únicamente flujo anual. Esto es una <strong>limitación estructural de integración entre fuentes</strong>, no un error de captura.
+  </div>
+  <div class="callout warn">
+    <strong>personas_desplazadas</strong> tiene {{ calidad.faltantes_personas_desplazadas }} registros faltantes, correspondientes a combinaciones país-año-causa donde el IDMC no reportó cifra (por ejemplo, países sin datos de desastres en un año determinado). Se recomienda documentarlos como "sin dato" en lugar de imputarlos con cero, para no subestimar artificialmente el fenómeno.
+  </div>
+  <div class="callout danger">
+    <strong>Posible sesgo de subregistro:</strong> tanto el IDMC como el CNMH reconocen que sus cifras son estimaciones basadas en fuentes secundarias y pueden subestimar el desplazamiento no declarado formalmente (personas que no acuden a ninguna institución), especialmente en zonas de difícil acceso o control territorial armado.
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Diferencias de formato entre fuentes</h2>
+  <div class="card">
+    <ul class="clean">
+      <li><strong>Granularidad temporal distinta:</strong> IDMC reporta por año puntual; CNMH reporta por periodos agregados de varios años (1980-1988, 1989-1996, 1997-2004, 2005-2014). Se estandarizó usando el año de inicio del periodo como referencia temporal, y se añadió <code>duracion_periodo_anios</code> para no perder esa información.</li>
+      <li><strong>Unidad geográfica distinta:</strong> IDMC reporta por país; CNMH reporta por municipio. Se armonizaron en un esquema jerárquico común (<code>pais</code> → <code>departamento</code> → <code>municipio</code>), dejando nulos los niveles no aplicables.</li>
+      <li><strong>Nomenclatura de causas:</strong> se tradujeron y unificaron las etiquetas originales en inglés ("Conflict", "Disaster") a las categorías en español usadas en todo el dataset.</li>
+      <li><strong>Codificación de caracteres:</strong> el archivo CSV original venía en UTF-8 con BOM y tildes en mayúsculas sostenidas; se normalizó la lectura para evitar caracteres corruptos.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Trazabilidad</h2>
+  <div class="card">
+    <p class="body-text" style="margin:0;">Cada registro conserva las columnas <code>fuente</code> y <code>tipo_fuente</code>, permitiendo rastrear en todo momento el origen exacto del dato y las transformaciones aplicadas durante la consolidación (ver <code>scripts/build_dataset.py</code> en el repositorio).</p>
+  </div>
+</section>
+{% endblock %}

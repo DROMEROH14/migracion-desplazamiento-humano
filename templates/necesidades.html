@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Necesidades de información{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Submenú 3</span>
+  <h1 class="page-title">Necesidades de información</h1>
+  <p class="page-desc">Entidades, variables, periodo, cobertura y granularidad requeridos para responder las preguntas de investigación.</p>
+</div>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Entidades involucradas</h2>
+  <div class="grid grid-4">
+    <div class="card"><strong>IDMC</strong><p class="body-text" style="margin-top:8px;">Base de datos global de desplazamiento interno.</p></div>
+    <div class="card"><strong>CNMH</strong><p class="body-text" style="margin-top:8px;">Memoria histórica del conflicto armado colombiano por municipio.</p></div>
+    <div class="card"><strong>ACNUR / OIM</strong><p class="body-text" style="margin-top:8px;">Estadísticas complementarias de refugiados y migración (etapas posteriores).</p></div>
+    <div class="card"><strong>Unidad para las Víctimas / DANE</strong><p class="body-text" style="margin-top:8px;">Registro administrativo nacional y censos (etapas posteriores).</p></div>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Variables relevantes y su justificación</h2>
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead><tr><th>Variable</th><th>Justificación</th></tr></thead>
+      <tbody>
+        <tr><td>Personas desplazadas (flujo anual)</td><td>Mide la magnitud del fenómeno en cada periodo; es la variable central para todas las preguntas.</td></tr>
+        <tr><td>Desplazamiento acumulado (stock)</td><td>Permite distinguir nuevos eventos de la población total aún desplazada, relevante para políticas de atención.</td></tr>
+        <tr><td>País / Departamento / Municipio</td><td>Habilita la comparación multinivel global–nacional–regional exigida por el proyecto.</td></tr>
+        <tr><td>Año / Periodo</td><td>Necesaria para el análisis de tendencias temporales y la detección de picos asociados a eventos de conflicto.</td></tr>
+        <tr><td>Causa del desplazamiento (conflicto / desastre)</td><td>Permite separar los dos grandes factores estructurales del fenómeno y compararlos.</td></tr>
+        <tr><td>Sexo y grupo de edad</td><td>Aporta la dimensión demográfica necesaria para caracterizar la población afectada.</td></tr>
+        <tr><td>Tipo y nombre de la fuente</td><td>Garantiza trazabilidad y permite evaluar confiabilidad al integrar múltiples orígenes de datos.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2 class="block-title"><span class="dot"></span>Periodo y cobertura</h2>
+    <dl class="kv-grid">
+      <dt>Periodo de análisis</dt><dd>1980 – 2024 (permite capturar el conflicto colombiano, el post-acuerdo de paz y la crisis migratoria venezolana desde 2015).</dd>
+      <dt>Cobertura geográfica</dt><dd>Mundial (212 países), Colombia (nacional) y municipios/departamentos de Colombia (regional).</dd>
+      <dt>Unidad de análisis</dt><dd>Registro administrativo por país-año-causa (global/nacional) o por municipio-periodo (regional).</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h2 class="block-title"><span class="dot"></span>Granularidad</h2>
+    <p class="body-text">Se priorizó la granularidad más fina disponible en cada fuente: <strong>país-año</strong> para el nivel global/nacional (e incluso <strong>país-año-sexo-edad</strong> en el subconjunto demográfico), y <strong>municipio-periodo</strong> para el nivel regional, evitando trabajar únicamente con totales agregados por país.</p>
+    <p class="body-text" style="margin:0;">La variable <em>tasa por cada 100.000 habitantes</em> queda identificada como necesidad pendiente: requiere cruzar los datos con series de población (Banco Mundial / DANE), previsto para una etapa posterior de integración.</p>
+  </div>
+</div>
+{% endblock %}

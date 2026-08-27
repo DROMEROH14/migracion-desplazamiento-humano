@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Dataset{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Submenú 5</span>
+  <h1 class="page-title">Dataset consolidado</h1>
+  <p class="page-desc">Integración de las fuentes global (IDMC) y regional (CNMH) en un único conjunto de datos granular.</p>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:20px;">
+  <div class="stat-card"><div class="stat-value">{{ stats.total_registros | kfmt }}</div><div class="stat-label">Registros totales (≥ 10.000 requeridos)</div></div>
+  <div class="stat-card"><div class="stat-value">{{ stats.variables }}</div><div class="stat-label">Variables (≥ 10 requeridas)</div></div>
+  <div class="stat-card"><div class="stat-value">{{ stats.anio_min }}–{{ stats.anio_max }}</div><div class="stat-label">Rango temporal</div></div>
+  <div class="stat-card"><div class="stat-value">{{ stats.paises }}</div><div class="stat-label">Países cubiertos</div></div>
+</div>
+
+<div class="card" style="margin-bottom:20px;">
+  <form method="get" class="filters">
+    <select name="nivel">
+      <option value="">Todos los niveles</option>
+      {% for n in niveles %}<option value="{{n}}" {{ 'selected' if nivel==n }}>{{n}}</option>{% endfor %}
+    </select>
+    <select name="causa">
+      <option value="">Todas las causas</option>
+      {% for c in causas %}<option value="{{c}}" {{ 'selected' if causa==c }}>{{c}}</option>{% endfor %}
+    </select>
+    <input type="text" name="q" placeholder="Buscar país / departamento / municipio…" value="{{ q }}">
+    <button class="btn" type="submit">Filtrar</button>
+    <a class="btn ghost" href="{{ url_for('dataset_view') }}">Limpiar</a>
+    <a class="btn ghost" href="{{ url_for('descargar_dataset') }}">⬇ Descargar CSV completo</a>
+  </form>
+
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>{% for c in columns %}<th>{{ c }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          {% for c in columns %}<td>{{ row[c] }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination">
+    <span>{{ total | kfmt }} registros encontrados · página {{ page }} de {{ total_pages }}</span>
+    {% set base_args = {'nivel': nivel, 'causa': causa, 'q': q} %}
+    {% if page > 1 %}
+      <a href="{{ url_for('dataset_view', page=page-1, **base_args) }}">‹ Anterior</a>
+    {% endif %}
+    <span class="current">{{ page }}</span>
+    {% if page < total_pages %}
+      <a href="{{ url_for('dataset_view', page=page+1, **base_args) }}">Siguiente ›</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="callout info">
+  El dataset combina registros a nivel <strong>Global</strong> y <strong>Nacional</strong> (IDMC — país/año, y país/año/sexo/edad)
+  con registros a nivel <strong>Regional</strong> (CNMH — municipio/periodo de Colombia). Contiene variables numéricas
+  (<code>personas_desplazadas</code>, <code>desplazamiento_stock</code>, <code>duracion_periodo_anios</code>),
+  categóricas (<code>nivel</code>, <code>causa</code>, <code>sexo</code>, <code>grupo_edad</code>, <code>tipo_fuente</code>),
+  temporal (<code>anio</code>, <code>periodo</code>) y geográficas (<code>pais</code>, <code>departamento</code>, <code>municipio</code>).
+</div>
+{% endblock %}

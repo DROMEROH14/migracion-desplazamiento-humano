@@ -1,0 +1,17 @@
+﻿variable,descripcion,tipo,unidad,dominio_valores,procedencia
+id,Identificador único de registro,Numérica (entero),N/A,1 - N,Generado en la consolidación
+nivel,Nivel de análisis del registro,Categórica,N/A,"Global, Nacional, Regional",Definido según fuente de origen
+iso3,Código ISO3 del país,Categórica,N/A,"Ej. COL, VEN, SYR",IDMC / CNMH
+pais,Nombre del país,Categórica,N/A,Nombres de país,IDMC / CNMH
+departamento,"Departamento (solo nivel Regional, Colombia)",Categórica,N/A,33 departamentos de Colombia,CNMH
+municipio,"Municipio (solo nivel Regional, Colombia)",Categórica / Geográfica,N/A,>1000 municipios de Colombia,CNMH
+anio,Año o año de inicio del periodo,Temporal,Año,1980 - 2024,IDMC / CNMH
+periodo,Año puntual o rango de años del registro,Temporal (texto),N/A,"Ej. 2020, 1997-2004",IDMC / CNMH
+causa,Causa del desplazamiento,Categórica,N/A,"Conflicto armado / violencia, Desastre natural / climático",IDMC / CNMH
+sexo,Sexo de la población (si aplica),Categórica,N/A,"Todos, Female, Male, Both sexes",IDMC (SADD)
+grupo_edad,Grupo etario (si aplica),Categórica,N/A,"Todos, 0-4, 5-11, 12-17, 18-59, 60+",IDMC (SADD)
+personas_desplazadas,Número de personas desplazadas / nuevos desplazamientos en el periodo (flujo),Numérica (entero),Personas,>= 0,IDMC / CNMH
+desplazamiento_stock,Total acumulado de personas en situación de desplazamiento al cierre del año (stock),Numérica (entero),Personas,>= 0 o vacío,IDMC (solo nivel Global/Nacional)
+duracion_periodo_anios,Cantidad de años que cubre el registro,Numérica (entero),Años,1 - 9,Calculado
+tipo_fuente,Clasificación de la fuente,Categórica,N/A,"Primaria, Secundaria, Terciaria",Documentado en Fuentes
+fuente,Nombre de la fuente de datos original,Categórica,N/A,"IDMC - GIDD, IDMC - SADD, CNMH",Documentado en Fuentes

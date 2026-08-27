@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Migración y Desplazamiento Humano{% endblock %} · Etapa 1</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">MD</div>
+      <div>
+        <div class="brand-title">Minería de Datos</div>
+        <div class="brand-sub">Migración y Desplazamiento</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="menu-label">Etapa 1</div>
+      <nav class="nav">
+        <a href="{{ url_for('problema') }}" class="{{ 'active' if active=='problema' else '' }}"><span class="num">1</span> Problema y contexto</a>
+        <a href="{{ url_for('preguntas') }}" class="{{ 'active' if active=='preguntas' else '' }}"><span class="num">2</span> Preguntas de investigación</a>
+        <a href="{{ url_for('necesidades') }}" class="{{ 'active' if active=='necesidades' else '' }}"><span class="num">3</span> Necesidades de información</a>
+        <a href="{{ url_for('fuentes_view') }}" class="{{ 'active' if active=='fuentes' else '' }}"><span class="num">4</span> Fuentes de datos</a>
+        <a href="{{ url_for('dataset_view') }}" class="{{ 'active' if active=='dataset' else '' }}"><span class="num">5</span> Dataset</a>
+        <a href="{{ url_for('diccionario_view') }}" class="{{ 'active' if active=='diccionario' else '' }}"><span class="num">6</span> Diccionario de datos</a>
+        <a href="{{ url_for('calidad_view') }}" class="{{ 'active' if active=='calidad' else '' }}"><span class="num">7</span> Calidad inicial</a>
+        <a href="{{ url_for('limitaciones_view') }}" class="{{ 'active' if active=='limitaciones' else '' }}"><span class="num">8</span> Limitaciones</a>
+      </nav>
+    </div>
+
+    <div class="menu-label" style="margin-top:4px;">General</div>
+    <nav class="nav">
+      <a href="{{ url_for('index') }}" class="{{ 'active' if active=='inicio' else '' }}">🏠 Inicio / Dashboard</a>
+    </nav>
+
+    <div class="sidebar-footer">
+      Proyecto individual · Minería de Datos<br>
+      Rama: <code>feature/etapa-1</code><br>
+      Tema: Migración y Desplazamiento Humano
+    </div>
+  </aside>
+
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

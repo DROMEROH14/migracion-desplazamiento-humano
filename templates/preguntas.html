@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Preguntas de investigación{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Submenú 2</span>
+  <h1 class="page-title">Pregunta principal y preguntas secundarias</h1>
+  <p class="page-desc">Preguntas que orientan el proceso de minería de datos sobre migración y desplazamiento humano.</p>
+</div>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Pregunta principal</h2>
+  <div class="question-card">
+    <div class="question-num">Pregunta principal</div>
+    <p class="body-text" style="margin:0;">¿Cómo ha evolucionado el desplazamiento forzado por conflicto armado y por desastres naturales a nivel global entre 1980 y 2024, y cómo se compara esa tendencia con la evolución del desplazamiento forzado en Colombia a nivel nacional y municipal en el mismo periodo?</p>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Preguntas secundarias</h2>
+
+  <div class="question-card secondary">
+    <div class="question-num">Secundaria 1</div>
+    <p class="body-text" style="margin:0;">¿Cuál es la relación entre los periodos de mayor intensidad del conflicto armado colombiano (1997–2004) y los picos de desplazamiento forzado interno registrados por municipio?</p>
+  </div>
+
+  <div class="question-card secondary">
+    <div class="question-num">Secundaria 2</div>
+    <p class="body-text" style="margin:0;">¿Cómo se compara la magnitud del desplazamiento forzado en Colombia frente a las tendencias globales de desplazamiento por conflicto y por desastres naturales?</p>
+  </div>
+
+  <div class="question-card secondary">
+    <div class="question-num">Secundaria 3</div>
+    <p class="body-text" style="margin:0;">¿Qué departamentos y municipios de Colombia concentran la mayor cantidad histórica de personas desplazadas, y qué patrones geográficos se observan (ej. zonas de frontera, corredores del conflicto)?</p>
+  </div>
+
+  <div class="question-card secondary">
+    <div class="question-num">Secundaria 4</div>
+    <p class="body-text" style="margin:0;">¿Existen diferencias significativas en la composición por sexo y grupo de edad de la población desplazada a nivel global, y qué implicaciones tiene esto para las políticas de atención?</p>
+  </div>
+
+  <div class="question-card secondary">
+    <div class="question-num">Secundaria 5</div>
+    <p class="body-text" style="margin:0;">¿Qué proporción del desplazamiento global corresponde a conflicto armado frente a desastres naturales, y cómo ha cambiado esa proporción en los últimos años?</p>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Conocimiento esperado</h2>
+  <div class="card">
+    <ul class="clean">
+      <li><strong>Patrones temporales:</strong> identificar los años y periodos de mayor intensidad del desplazamiento en cada nivel de análisis.</li>
+      <li><strong>Patrones geográficos:</strong> reconocer los países, departamentos y municipios más afectados histórica y recientemente.</li>
+      <li><strong>Relaciones causa-efecto potenciales:</strong> asociar eventos de conflicto o desastre con variaciones en la magnitud del desplazamiento.</li>
+      <li><strong>Comparabilidad multinivel:</strong> establecer si las tendencias nacionales de Colombia siguen, se adelantan o contradicen las tendencias globales.</li>
+      <li><strong>Insumos para minería de datos avanzada:</strong> generar variables e integraciones que permitan aplicar clustering (territorios con perfiles similares), series de tiempo (predicción) y análisis de asociación en etapas posteriores del proyecto.</li>
+    </ul>
+  </div>
+</section>
+{% endblock %}
