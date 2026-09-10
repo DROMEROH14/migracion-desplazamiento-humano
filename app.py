@@ -34,6 +34,12 @@ with open(CALIDAD_PATH, encoding="utf-8") as f:
 with open(FUENTES_PATH, encoding="utf-8") as f:
     fuentes = json.load(f)
 
+CALIDAD_REPORTE_PATH = os.path.join(DATA_DIR, "calidad_reporte.json")
+DATASET_TRATADO_PATH = os.path.join(DATA_DIR, "dataset_tratado.csv")
+
+with open(CALIDAD_REPORTE_PATH, encoding="utf-8") as f:
+    calidad_reporte = json.load(f)
+
 NIVELES = ["Global", "Nacional", "Regional"]
 CAUSAS = sorted(df["causa"].dropna().unique().tolist())
 
@@ -225,6 +231,30 @@ def limitaciones_view():
 @app.route("/dataset/descargar")
 def descargar_dataset():
     return send_from_directory(DATA_DIR, "dataset_consolidado.csv", as_attachment=True)
+
+
+@app.route("/calidad-datos")
+def calidad_datos_view():
+    r = calidad_reporte
+    dims = r["dimensiones_calidad"]
+    dim_labels = list(dims.keys())
+    dim_values = [dims[k]["resultado_pct"] for k in dim_labels]
+
+    comp = r["comparacion_antes_despues"]
+
+    return render_template(
+        "calidad_datos.html",
+        active="calidad_datos",
+        r=r,
+        dim_labels=dim_labels,
+        dim_values=dim_values,
+        comp=comp,
+    )
+
+
+@app.route("/dataset-tratado/descargar")
+def descargar_dataset_tratado():
+    return send_from_directory(DATA_DIR, "dataset_tratado.csv", as_attachment=True)
 
 
 if __name__ == "__main__":

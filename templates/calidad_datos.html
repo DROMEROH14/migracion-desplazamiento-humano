@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Calidad de Datos{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Etapa 2</span>
+  <h1 class="page-title">Calidad de Datos</h1>
+  <p class="page-desc">Perfilamiento, diagnóstico, medición por dimensiones y tratamiento del dataset consolidado de migración y desplazamiento humano.</p>
+</div>
+
+<!-- 1. Descripción del conjunto de datos -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>1. Descripción del conjunto de datos</h2>
+  <div class="card">
+    <p class="body-text" style="margin:0;">{{ r.proposito_dataset }}</p>
+  </div>
+</section>
+
+<!-- 2. Requisitos de calidad -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>2. Requisitos de calidad establecidos</h2>
+  <div class="card">
+    <ul class="clean">
+      {% for req in r.requisitos_calidad %}<li>{{ req }}</li>{% endfor %}
+    </ul>
+  </div>
+</section>
+
+<!-- 3. Perfilamiento -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>3. Resultados del perfilamiento</h2>
+  <div class="grid grid-4" style="margin-bottom:16px;">
+    <div class="stat-card"><div class="stat-value" data-raw="{{ r.perfilamiento_antes.n_registros }}">{{ r.perfilamiento_antes.n_registros | kfmt }}</div><div class="stat-label">Registros</div></div>
+    <div class="stat-card"><div class="stat-value">{{ r.perfilamiento_antes.n_variables }} → {{ r.perfilamiento_despues.n_variables }}</div><div class="stat-label">Variables (antes → después)</div></div>
+    <div class="stat-card"><div class="stat-value" data-raw="{{ comp.duplicados_antes }}">{{ comp.duplicados_antes }}</div><div class="stat-label">Duplicados exactos</div></div>
+    <div class="stat-card"><div class="stat-value" data-raw="{{ comp.outliers_detectados_y_marcados }}">{{ comp.outliers_detectados_y_marcados | kfmt }}</div><div class="stat-label">Valores atípicos marcados</div></div>
+  </div>
+  <div class="table-wrap card" style="padding:0;">
+    <table class="tbl">
+      <thead><tr><th>Variable</th><th>Tipo</th><th>Valores únicos</th><th>Nulos</th><th>% Nulos</th><th>Mín</th><th>Máx</th><th>Promedio</th></tr></thead>
+      <tbody>
+        {% for v in r.perfilamiento_antes.variables %}
+        <tr>
+          <td><code>{{ v.variable }}</code></td>
+          <td>{{ v.tipo }}</td>
+          <td>{{ v.valores_unicos }}</td>
+          <td>{{ v.nulos }}</td>
+          <td>{{ v.pct_nulos }}%</td>
+          <td>{{ v.minimo if v.minimo is not none else "—" }}</td>
+          <td>{{ v.maximo if v.maximo is not none else "—" }}</td>
+          <td>{{ v.promedio if v.promedio is not none else "—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 4. Dimensiones y métricas -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>4. Evaluación de las dimensiones de calidad</h2>
+  <div class="grid grid-2" style="margin-bottom:16px;">
+    <div class="card">
+      <div class="chart-box tall"><canvas id="chartDimensiones"></canvas></div>
+    </div>
+    <div class="card" style="display:flex; flex-direction:column; gap:10px; justify-content:center;">
+      {% for nombre, d in r.dimensiones_calidad.items() %}
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+        <span style="font-weight:700; font-size:13.5px;">{{ nombre }}</span>
+        <span class="badge {{ 'teal' if d.resultado_pct >= 95 else ('warn' if d.resultado_pct >= 75 else 'blue') }}">{{ d.resultado_pct }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% for nombre, d in r.dimensiones_calidad.items() %}
+  <div class="source-card">
+    <div class="source-head">
+      <div class="source-title">{{ nombre }} — {{ d.resultado_pct }}%</div>
+    </div>
+    <p class="body-text" style="margin:0 0 8px;">{{ d.definicion }}</p>
+    <p class="body-text" style="margin:0; font-size:12.5px; color:var(--text-faint);">Fórmula: <code>{{ d.formula }}</code>
+    {% if d.anio_mas_reciente %} · Año más reciente: {{ d.anio_mas_reciente }} ({{ d.antiguedad_anios }} años de antigüedad){% endif %}
+    {% if d.duplicados_exactos is defined %} · Duplicados: {{ d.duplicados_exactos }}{% endif %}
+    {% if d.registros_inconsistentes is defined %} · Inconsistentes: {{ d.registros_inconsistentes }}{% endif %}
+    </p>
+  </div>
+  {% endfor %}
+</section>
+
+<!-- 5. Inventario de problemas -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>5. Inventario de problemas encontrados</h2>
+  <div class="table-wrap card" style="padding:0;">
+    <table class="tbl">
+      <thead><tr><th>Variable</th><th>Descripción</th><th>Registros</th><th>Dimensión</th><th>Impacto</th><th>Evidencia</th></tr></thead>
+      <tbody>
+        {% for p in r.inventario_problemas %}
+        <tr>
+          <td><code>{{ p.variable }}</code></td>
+          <td style="min-width:260px;">{{ p.descripcion }}</td>
+          <td>{{ p.registros_afectados | kfmt }}</td>
+          <td><span class="badge blue">{{ p.dimension }}</span></td>
+          <td><span class="badge {{ 'warn' if 'Alto' in p.impacto else ('teal' if 'Bajo' in p.impacto else 'purple') }}">{{ p.impacto }}</span></td>
+          <td style="min-width:220px; font-size:12.5px;">{{ p.evidencia }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 6. Análisis de causas -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>6. Análisis de las causas</h2>
+  {% for c in r.causas_analisis %}
+  <div class="callout info">
+    <strong>{{ c.causa_raiz }}</strong> — afecta: {{ c.problemas_relacionados | join(', ') }}<br>
+    {{ c.explicacion }}
+  </div>
+  {% endfor %}
+</section>
+
+<!-- 7. Integración y homologación -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>7. Integración y homologación de los datos</h2>
+  <div class="card">
+    <dl class="kv-grid">
+      <dt>Fuentes integradas</dt><dd>{{ r.integracion_homologacion.fuentes_integradas | join(' · ') }}</dd>
+      <dt>Llave de integración</dt><dd>{{ r.integracion_homologacion.llave_de_integracion }}</dd>
+    </dl>
+    <h3 style="font-size:13px; margin:16px 0 8px; color:var(--text-dim);">Transformaciones aplicadas</h3>
+    <ul class="clean">
+      {% for t in r.integracion_homologacion.transformaciones %}<li>{{ t }}</li>{% endfor %}
+    </ul>
+  </div>
+</section>
+
+<!-- 8. Plan de tratamiento -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>8. Plan de tratamiento aplicado</h2>
+  <div class="table-wrap card" style="padding:0;">
+    <table class="tbl">
+      <thead><tr><th>Acción</th><th>Detalle / justificación</th><th>Registros afectados</th></tr></thead>
+      <tbody>
+        {% for a in r.plan_tratamiento %}
+        <tr>
+          <td style="min-width:180px; font-weight:700;">{{ a.accion }}</td>
+          <td style="min-width:320px;">{{ a.detalle }}</td>
+          <td>{{ a.registros_afectados | kfmt }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 9. Comparación antes / después -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>9. Comparación antes y después</h2>
+  <div class="grid grid-4" style="margin-bottom:18px;">
+    <div class="stat-card"><div class="stat-value">{{ comp.variables_antes }} → {{ comp.variables_despues }}</div><div class="stat-label">Variables</div></div>
+    <div class="stat-card"><div class="stat-value">{{ comp.duplicados_antes }} → {{ comp.duplicados_despues }}</div><div class="stat-label">Duplicados exactos</div></div>
+    <div class="stat-card"><div class="stat-value">{{ comp.registros_con_flag_sin_dato }}</div><div class="stat-label">Registros con flag "sin_dato" (trazabilidad)</div></div>
+    <div class="stat-card"><div class="stat-value">{{ comp.outliers_detectados_y_marcados }}</div><div class="stat-label">Outliers marcados (conservados)</div></div>
+  </div>
+  <div class="callout info">
+    El dataset tratado (<code>dataset_tratado.csv</code>) conserva el 100% de los registros originales — no se eliminó
+    información — pero incorpora 4 nuevas variables de trazabilidad: <code>personas_desplazadas_flag</code>,
+    <code>desplazamiento_stock_flag</code>, <code>registro_valido_dominio</code> y <code>outlier_iqr_extremo</code>,
+    que permiten filtrar o auditar los datos en análisis posteriores sin perder ningún registro original.
+  </div>
+  <a class="btn" href="{{ url_for('descargar_dataset_tratado') }}">⬇ Descargar dataset_tratado.csv</a>
+</section>
+
+<div class="footer-note">Reporte generado automáticamente por <code>scripts/quality_analysis.py</code> · Última ejecución: {{ r.generado }}</div>
+
+<script>
+function kfmtJS(n){
+  n = Number(n);
+  const sign = n < 0 ? '-' : '';
+  n = Math.abs(n);
+  if (n >= 1e9) return sign + (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return sign + (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return sign + (n/1e3).toFixed(1) + 'K';
+  return sign + n.toFixed(0);
+}
+document.querySelectorAll('.stat-value[data-raw]').forEach((el) => {
+  const target = parseFloat(el.dataset.raw);
+  const dur = 1000;
+  const start = performance.now();
+  function step(now){
+    const p = Math.min(1, (now-start)/dur);
+    const eased = 1 - Math.pow(1-p, 3);
+    el.textContent = kfmtJS(target*eased);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+});
+
+Chart.defaults.color = "#94a1bd";
+Chart.defaults.font.family = "Inter, sans-serif";
+new Chart(document.getElementById('chartDimensiones'), {
+  type: 'bar',
+  data: {
+    labels: {{ dim_labels | tojson }},
+    datasets: [{
+      label: '% cumplimiento',
+      data: {{ dim_values | tojson }},
+      backgroundColor: ["#4f8cff","#7c5cff","#22d3b8","#ffb454","#ff6b6b","#4f8cff"],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display:false } },
+    scales: { x: { max:100, grid:{color:'#1c2334'} }, y: { grid:{display:false} } }
+  }
+});
+</script>
+{% endblock %}

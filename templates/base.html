@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Migración y Desplazamiento Humano{% endblock %} · Etapa 1</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/chart.umd.min.js') }}"></script>
 </head>
 <body>
+<div id="spotlight"></div>
+
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
@@ -18,28 +20,73 @@
       </div>
     </div>
 
-    <div>
-      <div class="menu-label">Etapa 1</div>
+    <div class="stage-group">
+      <div class="stage-head">
+        <span class="stage-label">Etapa 1</span>
+        <span class="stage-progress">8/8</span>
+      </div>
       <nav class="nav">
-        <a href="{{ url_for('problema') }}" class="{{ 'active' if active=='problema' else '' }}"><span class="num">1</span> Problema y contexto</a>
-        <a href="{{ url_for('preguntas') }}" class="{{ 'active' if active=='preguntas' else '' }}"><span class="num">2</span> Preguntas de investigación</a>
-        <a href="{{ url_for('necesidades') }}" class="{{ 'active' if active=='necesidades' else '' }}"><span class="num">3</span> Necesidades de información</a>
-        <a href="{{ url_for('fuentes_view') }}" class="{{ 'active' if active=='fuentes' else '' }}"><span class="num">4</span> Fuentes de datos</a>
-        <a href="{{ url_for('dataset_view') }}" class="{{ 'active' if active=='dataset' else '' }}"><span class="num">5</span> Dataset</a>
-        <a href="{{ url_for('diccionario_view') }}" class="{{ 'active' if active=='diccionario' else '' }}"><span class="num">6</span> Diccionario de datos</a>
-        <a href="{{ url_for('calidad_view') }}" class="{{ 'active' if active=='calidad' else '' }}"><span class="num">7</span> Calidad inicial</a>
-        <a href="{{ url_for('limitaciones_view') }}" class="{{ 'active' if active=='limitaciones' else '' }}"><span class="num">8</span> Limitaciones</a>
+        <a href="{{ url_for('problema') }}" class="{{ 'active' if active=='problema' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+          Problema y contexto
+        </a>
+        <a href="{{ url_for('preguntas') }}" class="{{ 'active' if active=='preguntas' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 9a3 3 0 1 1 4 2.8c-.7.3-1 .9-1 1.7v.5"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>
+          Preguntas de investigación
+        </a>
+        <a href="{{ url_for('necesidades') }}" class="{{ 'active' if active=='necesidades' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5a2 2 0 0 1 2-2h8l6 6v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M14 3v6h6"/></svg>
+          Necesidades de información
+        </a>
+        <a href="{{ url_for('fuentes_view') }}" class="{{ 'active' if active=='fuentes' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+          Fuentes de datos
+        </a>
+        <a href="{{ url_for('dataset_view') }}" class="{{ 'active' if active=='dataset' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>
+          Dataset
+        </a>
+        <a href="{{ url_for('diccionario_view') }}" class="{{ 'active' if active=='diccionario' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+          Diccionario de datos
+        </a>
+        <a href="{{ url_for('calidad_view') }}" class="{{ 'active' if active=='calidad' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+          Calidad inicial
+        </a>
+        <a href="{{ url_for('limitaciones_view') }}" class="{{ 'active' if active=='limitaciones' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+          Limitaciones
+        </a>
       </nav>
     </div>
 
-    <div class="menu-label" style="margin-top:4px;">General</div>
-    <nav class="nav">
-      <a href="{{ url_for('index') }}" class="{{ 'active' if active=='inicio' else '' }}">🏠 Inicio / Dashboard</a>
-    </nav>
+    <div class="stage-group">
+      <div class="stage-head">
+        <span class="stage-label">Etapa 2</span>
+        <span class="stage-progress">1/1</span>
+      </div>
+      <nav class="nav">
+        <a href="{{ url_for('calidad_datos_view') }}" class="{{ 'active' if active=='calidad_datos' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5Z"/><path d="m9 12 2 2 4-4"/></svg>
+          Calidad de Datos
+        </a>
+      </nav>
+    </div>
+
+    <div class="stage-group">
+      <div class="stage-head"><span class="stage-label">General</span></div>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}" class="{{ 'active' if active=='inicio' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+          Inicio / Dashboard
+        </a>
+      </nav>
+    </div>
 
     <div class="sidebar-footer">
       Proyecto individual · Minería de Datos<br>
-      Rama: <code>feature/etapa-1</code><br>
+      Rama: <code>feature/etapa-2</code><br>
       Tema: Migración y Desplazamiento Humano
     </div>
   </aside>
@@ -48,5 +95,145 @@
     {% block content %}{% endblock %}
   </main>
 </div>
+
+<!-- Ficha técnica: botón flotante + modal -->
+<button id="techFabBtn" aria-label="Ver ficha técnica del sitio" title="Ficha técnica">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16M3 9h5M3 14h5"/></svg>
+</button>
+
+<div id="techModalOverlay">
+  <div id="techModal">
+    <div class="tech-modal-head">
+      <div>
+        <div class="tech-modal-eyebrow">Ficha técnica del sitio</div>
+        <h3>¿Cómo está construido este proyecto?</h3>
+      </div>
+      <button id="techModalClose" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="tech-modal-body">
+      <section class="tech-section">
+        <h4>Lenguajes</h4>
+        <div class="tech-grid">
+          <div class="tech-item">
+            <span class="tech-name">Python</span>
+            <span class="tech-use">Backend, procesamiento y análisis de datos (pandas, scripts de perfilamiento y calidad)</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">HTML5 + Jinja2</span>
+            <span class="tech-use">Estructura de las páginas y renderizado dinámico de datos del servidor</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">CSS3</span>
+            <span class="tech-use">Diseño visual: tema oscuro, layout, animaciones y efecto de cursor tipo linterna</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">JavaScript</span>
+            <span class="tech-use">Interactividad: gráficas, contadores animados, filtros y esta misma ficha técnica</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="tech-section">
+        <h4>Framework y librerías</h4>
+        <div class="tech-grid">
+          <div class="tech-item">
+            <span class="tech-name">Flask</span>
+            <span class="tech-use">Framework web en Python: define las rutas, controla las plantillas y sirve la aplicación</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">pandas</span>
+            <span class="tech-use">Limpieza, integración y perfilamiento del dataset consolidado (28.467 registros)</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">openpyxl</span>
+            <span class="tech-use">Lectura del archivo Excel original del IDMC durante la construcción del dataset</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">Chart.js</span>
+            <span class="tech-use">Gráficas interactivas del dashboard y de la sección de Calidad de Datos (empaquetado localmente, sin depender de un CDN externo)</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">Gunicorn</span>
+            <span class="tech-use">Servidor WSGI de producción usado en el despliegue</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="tech-section">
+        <h4>Datos y control de versiones</h4>
+        <div class="tech-grid">
+          <div class="tech-item">
+            <span class="tech-name">CSV / XLSX / JSON</span>
+            <span class="tech-use">Formatos de almacenamiento del dataset consolidado, diccionario de datos y reporte de calidad</span>
+          </div>
+          <div class="tech-item">
+            <span class="tech-name">Git + GitHub</span>
+            <span class="tech-use">Control de versiones por rama (feature/etapa-1, feature/etapa-2) e historial de commits</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="tech-section">
+        <h4>Despliegue</h4>
+        <p class="tech-note">Aplicación publicada en PythonAnywhere, sirviendo el mismo código fuente disponible en el repositorio de GitHub.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const btn = document.getElementById('techFabBtn');
+  const overlay = document.getElementById('techModalOverlay');
+  const closeBtn = document.getElementById('techModalClose');
+  if (!btn || !overlay) return;
+  const open = () => { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; };
+  const close = () => { overlay.classList.remove('open'); document.body.style.overflow = ''; };
+  btn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+})();
+</script>
+
+<script>
+// Efecto "linterna": el spotlight sigue al cursor
+(function () {
+  const spot = document.getElementById('spotlight');
+  if (!spot) return;
+  window.addEventListener('pointermove', (e) => {
+    document.documentElement.style.setProperty('--sx', e.clientX + 'px');
+    document.documentElement.style.setProperty('--sy', e.clientY + 'px');
+  }, { passive: true });
+})();
+
+// Animación de conteo para las cifras (.stat-value con data-count)
+(function () {
+  const els = document.querySelectorAll('.stat-value[data-count]');
+  if (!els.length) return;
+  const animate = (el) => {
+    const target = parseFloat(el.dataset.count);
+    const suffix = el.dataset.suffix || '';
+    const decimals = el.dataset.decimals ? parseInt(el.dataset.decimals) : 0;
+    const dur = 900;
+    const start = performance.now();
+    function step(now) {
+      const p = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      const val = target * eased;
+      el.textContent = val.toFixed(decimals).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  };
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) { animate(entry.target); obs.unobserve(entry.target); }
+    });
+  }, { threshold: 0.3 });
+  els.forEach((el) => obs.observe(el));
+})();
+</script>
 </body>
 </html>
