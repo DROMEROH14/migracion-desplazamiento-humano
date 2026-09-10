@@ -18,19 +18,19 @@
 
 <div class="grid grid-4" style="margin-bottom:22px;">
   <div class="stat-card">
-    <div class="stat-value">{{ stats.total_registros | kfmt }}</div>
+    <div class="stat-value" data-raw="{{ stats.total_registros }}">{{ stats.total_registros | kfmt }}</div>
     <div class="stat-label">Registros consolidados</div>
   </div>
   <div class="stat-card">
-    <div class="stat-value">{{ stats.total_personas | kfmt }}</div>
+    <div class="stat-value" data-raw="{{ stats.total_personas }}">{{ stats.total_personas | kfmt }}</div>
     <div class="stat-label">Personas desplazadas (suma de eventos)</div>
   </div>
   <div class="stat-card">
-    <div class="stat-value">{{ stats.paises }}</div>
+    <div class="stat-value" data-raw="{{ stats.paises }}">{{ stats.paises }}</div>
     <div class="stat-label">Países con datos</div>
   </div>
   <div class="stat-card">
-    <div class="stat-value">{{ stats.municipios }}</div>
+    <div class="stat-value" data-raw="{{ stats.municipios }}">{{ stats.municipios }}</div>
     <div class="stat-label">Municipios de Colombia</div>
   </div>
 </div>
@@ -85,9 +85,9 @@ function gradientFill(ctx, color){
 
 new Chart(document.getElementById('chartGlobal'), {
   type: 'line',
-  data: { labels: {{ agg.years }}, datasets: [{
+  data: { labels: {{ agg.years | tojson }}, datasets: [{
     label: 'Personas desplazadas (global)',
-    data: {{ agg.global_values }},
+    data: {{ agg.global_values | tojson }},
     borderColor: colors.blue, backgroundColor: (c)=>gradientFill(c.chart.ctx, colors.blue),
     fill:true, tension:.35, pointRadius:0, borderWidth:2
   }]},
@@ -96,9 +96,9 @@ new Chart(document.getElementById('chartGlobal'), {
 
 new Chart(document.getElementById('chartColombia'), {
   type: 'bar',
-  data: { labels: {{ agg.colombia_years }}, datasets: [{
+  data: { labels: {{ agg.colombia_years | tojson }}, datasets: [{
     label: 'Colombia',
-    data: {{ agg.colombia_values }},
+    data: {{ agg.colombia_values | tojson }},
     backgroundColor: colors.purple, borderRadius:5, maxBarThickness: 22
   }]},
   options: { plugins:{legend:{display:false}}, scales:{ y:{ grid:{color:'#1c2334'} }, x:{ grid:{display:false} } } }
@@ -106,8 +106,8 @@ new Chart(document.getElementById('chartColombia'), {
 
 new Chart(document.getElementById('chartPaises'), {
   type: 'bar',
-  data: { labels: {{ agg.top_paises_labels }}, datasets: [{
-    data: {{ agg.top_paises_values }},
+  data: { labels: {{ agg.top_paises_labels | tojson }}, datasets: [{
+    data: {{ agg.top_paises_values | tojson }},
     backgroundColor: colors.teal, borderRadius:5
   }]},
   options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ grid:{color:'#1c2334'} }, y:{ grid:{display:false} } } }
@@ -115,8 +115,8 @@ new Chart(document.getElementById('chartPaises'), {
 
 new Chart(document.getElementById('chartDeptos'), {
   type: 'bar',
-  data: { labels: {{ agg.top_departamentos_labels }}, datasets: [{
-    data: {{ agg.top_departamentos_values }},
+  data: { labels: {{ agg.top_departamentos_labels | tojson }}, datasets: [{
+    data: {{ agg.top_departamentos_values | tojson }},
     backgroundColor: colors.warn, borderRadius:5
   }]},
   options: { indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{ grid:{color:'#1c2334'} }, y:{ grid:{display:false} } } }
@@ -124,8 +124,8 @@ new Chart(document.getElementById('chartDeptos'), {
 
 new Chart(document.getElementById('chartCausa'), {
   type: 'doughnut',
-  data: { labels: {{ agg.por_causa_labels }}, datasets: [{
-    data: {{ agg.por_causa_values }},
+  data: { labels: {{ agg.por_causa_labels | tojson }}, datasets: [{
+    data: {{ agg.por_causa_values | tojson }},
     backgroundColor: [colors.blue, colors.warn], borderWidth:0
   }]},
   options: { cutout:'68%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:16}}} }
@@ -133,11 +133,35 @@ new Chart(document.getElementById('chartCausa'), {
 
 new Chart(document.getElementById('chartNivel'), {
   type: 'doughnut',
-  data: { labels: {{ agg.por_nivel_labels }}, datasets: [{
-    data: {{ agg.por_nivel_values }},
+  data: { labels: {{ agg.por_nivel_labels | tojson }}, datasets: [{
+    data: {{ agg.por_nivel_values | tojson }},
     backgroundColor: [colors.blue, colors.purple, colors.teal], borderWidth:0
   }]},
   options: { cutout:'68%', plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:16}}} }
 });
+
+function kfmtJS(n){
+  n = Number(n);
+  const sign = n < 0 ? '-' : '';
+  n = Math.abs(n);
+  if (n >= 1e9) return sign + (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return sign + (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return sign + (n/1e3).toFixed(1) + 'K';
+  return sign + n.toFixed(0);
+}
+(function(){
+  document.querySelectorAll('.stat-value[data-raw]').forEach((el) => {
+    const target = parseFloat(el.dataset.raw);
+    const dur = 1000;
+    const start = performance.now();
+    function step(now){
+      const p = Math.min(1, (now-start)/dur);
+      const eased = 1 - Math.pow(1-p, 3);
+      el.textContent = kfmtJS(target*eased);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+})();
 </script>
 {% endblock %}
