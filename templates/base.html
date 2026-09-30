@@ -75,6 +75,19 @@
     </div>
 
     <div class="stage-group">
+      <div class="stage-head">
+        <span class="stage-label">Etapa 3</span>
+        <span class="stage-progress">1/1</span>
+      </div>
+      <nav class="nav">
+        <a href="{{ url_for('etapa3_view') }}" class="{{ 'active' if active=='etapa3' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2"/><path d="M3 8h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z"/><path d="M8 12h8M8 16h5"/></svg>
+          Etapa 3 — ETL SSIS
+        </a>
+      </nav>
+    </div>
+
+    <div class="stage-group">
       <div class="stage-head"><span class="stage-label">General</span></div>
       <nav class="nav">
         <a href="{{ url_for('index') }}" class="{{ 'active' if active=='inicio' else '' }}">
@@ -86,7 +99,7 @@
 
     <div class="sidebar-footer">
       Proyecto individual · Minería de Datos<br>
-      Rama: <code>feature/etapa-2</code><br>
+      Rama: <code>main</code><br>
       Tema: Migración y Desplazamiento Humano
     </div>
   </aside>
@@ -169,7 +182,7 @@
           </div>
           <div class="tech-item">
             <span class="tech-name">Git + GitHub</span>
-            <span class="tech-use">Control de versiones por rama (feature/etapa-1, feature/etapa-2) e historial de commits</span>
+            <span class="tech-use">Control de versiones por rama (feature/etapa-1, feature/etapa-2, feature/etapa-3) e historial de commits</span>
           </div>
         </div>
       </section>

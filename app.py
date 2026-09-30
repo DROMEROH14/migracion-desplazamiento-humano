@@ -257,6 +257,54 @@ def descargar_dataset_tratado():
     return send_from_directory(DATA_DIR, "dataset_tratado.csv", as_attachment=True)
 
 
+# --------------------------------------------------------------------------
+# Etapa 3 — ETL con SSIS
+# --------------------------------------------------------------------------
+ETAPA3_DIR = os.path.join(BASE_DIR, "etapa3")
+ETAPA3_INFORME_DIR = os.path.join(ETAPA3_DIR, "informe")
+ETAPA3_ASSETS_DIR = os.path.join(ETAPA3_INFORME_DIR, "assets")
+ETAPA3_RESULTADOS_PATH = os.path.join(DATA_DIR, "resultados_iteraciones.json")
+
+with open(ETAPA3_RESULTADOS_PATH, encoding="utf-8") as f:
+    etapa3_data = json.load(f)
+
+
+@app.route("/etapa3")
+def etapa3_view():
+    informe_path = os.path.join(ETAPA3_INFORME_DIR, "Informe_Etapa3_ETL_SSIS.pdf")
+    video_path = os.path.join(BASE_DIR, "static", "video", "etapa3_demo.mp4")
+    return render_template(
+        "etapa3.html",
+        active="etapa3",
+        reglas=etapa3_data["reglas_tratamiento"],
+        iteraciones=etapa3_data["iteraciones"],
+        comp=etapa3_data["comparacion_calidad"],
+        generado=etapa3_data["generado"],
+        informe_disponible=os.path.exists(informe_path),
+        video_disponible=os.path.exists(video_path),
+    )
+
+
+@app.route("/etapa3/informe/descargar")
+def descargar_etapa3_informe():
+    return send_from_directory(ETAPA3_INFORME_DIR, "Informe_Etapa3_ETL_SSIS.pdf")
+
+
+@app.route("/etapa3/assets/<path:filename>")
+def etapa3_assets(filename):
+    return send_from_directory(ETAPA3_ASSETS_DIR, filename)
+
+
+@app.route("/etapa3/tratado/descargar")
+def descargar_etapa3_tratado():
+    return send_from_directory(DATA_DIR, "dataset_tratado_etapa3.csv", as_attachment=True)
+
+
+@app.route("/etapa3/revision/descargar")
+def descargar_etapa3_revision():
+    return send_from_directory(DATA_DIR, "registros_revision_etapa3.csv", as_attachment=True)
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)

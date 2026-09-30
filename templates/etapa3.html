@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Etapa 3 — ETL SSIS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Etapa 3</span>
+  <h1 class="page-title">Proceso ETL con SQL Server Integration Services</h1>
+  <p class="page-desc">Tratamiento de los problemas de calidad identificados en la Etapa 2, mediante un paquete SSIS con zona de staging, tres iteraciones documentadas y una carga idempotente hacia SQL Server.</p>
+</div>
+
+<!-- 0. Entregables -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Entregables de esta etapa</h2>
+  <div class="grid grid-2" style="margin-bottom:6px;">
+    <div class="source-card">
+      <div class="source-head"><div class="source-title">📄 Informe técnico (PDF)</div></div>
+      <p class="body-text" style="margin:0 0 10px;">Diagnóstico, reglas de tratamiento, diseño del Control Flow/Data Flow, configuración de cada componente, evidencia de las 3 iteraciones y prueba de idempotencia.</p>
+      {% if informe_disponible %}
+      <a class="btn" href="{{ url_for('descargar_etapa3_informe') }}" target="_blank">⬇ Ver / descargar informe</a>
+      {% else %}
+      <span class="badge warn">Informe no encontrado en el servidor</span>
+      {% endif %}
+    </div>
+    <div class="source-card">
+      <div class="source-head"><div class="source-title">🎬 Video de demostración</div></div>
+      <p class="body-text" style="margin:0 0 10px;">Presentación del paquete SSIS, ejecución del tratamiento, resultados de las 3 iteraciones y evidencia de un dato corregido y un registro enviado a revisión (máx. 4 minutos).</p>
+      {% if video_disponible %}
+      <a class="btn" href="{{ url_for('static', filename='video/etapa3_demo.mp4') }}" target="_blank">▶ Ver video</a>
+      {% else %}
+      <span class="badge warn">Video no encontrado en el servidor</span>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- 1. Diagnóstico y reglas -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>1. Diagnóstico de la Etapa 2 y reglas de tratamiento</h2>
+  <p class="body-text">Cada regla nace de un problema de calidad concreto, ya medido en la Etapa 2 (perfilamiento y las 6 dimensiones). No se trata de reglas genéricas: cada una cita el hallazgo que la origina.</p>
+  <div class="table-wrap card" style="padding:0;">
+    <table class="tbl">
+      <thead><tr><th>Campo</th><th>Problema de origen</th><th>Acción en el Data Flow</th><th>Justificación</th></tr></thead>
+      <tbody>
+        {% for r in reglas %}
+        <tr>
+          <td style="min-width:170px;"><code>{{ r.campo }}</code></td>
+          <td style="min-width:230px;">{{ r.problema_origen }}</td>
+          <td style="min-width:260px;">{{ r.accion }}</td>
+          <td style="min-width:260px; color:var(--text-faint); font-size:12.5px;">{{ r.justificacion }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 2. Diseño del paquete (evidencias reales) -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>2. Diseño del paquete: Control Flow y Data Flow</h2>
+  <p class="body-text">El Control Flow orquesta la corrida (registra el inicio del batch, trunca las tablas temporales, ejecuta el Data Flow, corre el MERGE idempotente y marca el batch OK o ERROR). El staging guarda el dato tal como llega, sin tipar, para trazabilidad y repetibilidad; el Data Flow lo transforma y separa en válidos y casos a revisión. Capturas reales del paquete construido en Visual Studio / SSIS:</p>
+
+  <div class="card" style="margin-bottom:16px;">
+    <img src="{{ url_for('etapa3_assets', filename='evidencia_control_flow_disenio.png') }}" alt="Control Flow — diseño" style="width:100%; border-radius:10px; display:block;">
+    <p class="body-text" style="margin:10px 0 0; font-size:12.5px; color:var(--text-faint);">Figura 1. Control Flow: Registrar Inicio de batch → Truncar tablas temporales → Data Flow Task → Transformar y cargar → Ejecutar MERGE idempotente → Marcar batch OK / ERROR.</p>
+  </div>
+  <div class="card" style="margin-bottom:16px;">
+    <img src="{{ url_for('etapa3_assets', filename='evidencia_control_flow_ok.png') }}" alt="Control Flow — ejecución en verde" style="width:100%; border-radius:10px; display:block;">
+    <p class="body-text" style="margin:10px 0 0; font-size:12.5px; color:var(--text-faint);">Figura 2. Ejecución completa del Control Flow, todas las tareas en verde (sin errores).</p>
+  </div>
+  <div class="card" style="margin-bottom:16px;">
+    <img src="{{ url_for('etapa3_assets', filename='evidencia_data_flow_transformar.png') }}" alt="Data Flow — Transformar y cargar" style="width:100%; border-radius:10px; display:block;">
+    <p class="body-text" style="margin:10px 0 0; font-size:12.5px; color:var(--text-faint);">Figura 3. Data Flow "Transformar y cargar": Derived Column, Data Conversion, Lookup, Union All, Conditional Split, Sort y los dos destinos (válidos / revisión).</p>
+  </div>
+  <div class="card">
+    <img src="{{ url_for('etapa3_assets', filename='evidencia_data_flow_staging.png') }}" alt="Data Flow — staging" style="width:100%; border-radius:10px; display:block;">
+    <p class="body-text" style="margin:10px 0 0; font-size:12.5px; color:var(--text-faint);">Figura 4. Data Flow de staging: origen plano → Derived Column → carga a la tabla de staging.</p>
+  </div>
+</section>
+
+<!-- 3. Resultados por iteración -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>3. Resultados de las 3 iteraciones</h2>
+  <div class="card" style="margin-bottom:18px;">
+    <img src="{{ url_for('etapa3_assets', filename='comparacion_iteraciones.png') }}" alt="Comparación de iteraciones" style="width:100%; border-radius:10px; display:block;">
+    <p class="body-text" style="margin:10px 0 0; font-size:12.5px; color:var(--text-faint);">Comparación con los conteos reales obtenidos en cada iteración (recibidos, aceptados, duplicados, a revisión).</p>
+  </div>
+
+  {% for it in iteraciones %}
+  <div class="source-card" style="margin-bottom:14px;">
+    <div class="source-head">
+      <div class="source-title">Iteración {{ it.numero }} — {{ it.titulo }}</div>
+      <span class="badge blue">Reglas {{ it.reglas_version }}</span>
+    </div>
+    <p class="body-text" style="margin:0 0 10px;">{{ it.descripcion }}</p>
+    <div class="grid grid-4" style="margin-bottom:12px;">
+      <div class="stat-card"><div class="stat-value">{{ it.resultados.recibidos | kfmt }}</div><div class="stat-label">Recibidos</div></div>
+      <div class="stat-card"><div class="stat-value">{{ it.resultados.aceptados_nuevos | kfmt }}</div><div class="stat-label">Aceptados (nuevos)</div></div>
+      <div class="stat-card"><div class="stat-value">{{ it.resultados.duplicados_ya_existian | kfmt }}</div><div class="stat-label">Duplicados</div></div>
+      <div class="stat-card"><div class="stat-value">{{ it.resultados.enviados_a_revision | kfmt }}</div><div class="stat-label">A revisión</div></div>
+    </div>
+    <p class="body-text" style="margin:0 0 6px; font-size:12.5px; color:var(--text-faint);">
+      Verificación de balance: {{ it.resultados.aceptados_nuevos }} + {{ it.resultados.duplicados_ya_existian }} + {{ it.resultados.enviados_a_revision }} = {{ it.resultados.aceptados_nuevos + it.resultados.duplicados_ya_existian + it.resultados.enviados_a_revision }} (= recibidos, sin pérdida de datos)
+    </p>
+    {% if it.hallazgos %}
+    <h4 style="font-size:12.5px; margin:12px 0 6px; color:var(--text-dim);">Hallazgos</h4>
+    <ul class="clean">{% for h in it.hallazgos %}<li>{{ h }}</li>{% endfor %}</ul>
+    {% endif %}
+    {% if it.ajuste_para_siguiente %}
+    <div class="callout info" style="margin-top:10px;"><strong>Ajuste aplicado en la siguiente iteración:</strong> {{ it.ajuste_para_siguiente }}</div>
+    {% endif %}
+    {% if it.prueba_idempotencia %}
+    <div class="callout {{ 'info' if it.prueba_idempotencia.es_idempotente else 'danger' }}" style="margin-top:10px;">
+      <strong>Prueba de idempotencia (mismo lote ejecutado dos veces):</strong>
+      destino antes = {{ it.prueba_idempotencia.destino_antes | kfmt }} · destino después = {{ it.prueba_idempotencia.destino_despues | kfmt }} ·
+      nuevos insertados en la 2ª corrida = {{ it.prueba_idempotencia.nuevos_insertados }} →
+      {{ "el proceso es idempotente: no genera duplicados al repetirse." if it.prueba_idempotencia.es_idempotente else "se detectó una inconsistencia a revisar." }}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="card">
+    <img src="{{ url_for('etapa3_assets', filename='evidencia_log_batches_21_22.png') }}" alt="Log de batches" style="width:100%; border-radius:10px; display:block;">
+    <p class="body-text" style="margin:10px 0 0; font-size:12.5px; color:var(--text-faint);">Registro real de ejecución de los batches en la tabla de control de lotes.</p>
+  </div>
+</section>
+
+<!-- 4. Comparación de calidad antes/después -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>4. Comparación de calidad antes y después del tratamiento</h2>
+  <div class="grid grid-4" style="margin-bottom:14px;">
+    <div class="stat-card"><div class="stat-value">{{ comp.completitud_antes_pct }}% → {{ comp.completitud_despues_pct }}%</div><div class="stat-label">Completitud (variable central)</div></div>
+    <div class="stat-card"><div class="stat-value">{{ comp.validez_antes_pct }}% → {{ comp.validez_despues_pct }}%</div><div class="stat-label">Validez</div></div>
+    <div class="stat-card"><div class="stat-value">{{ comp.duplicados_despues_del_control }}</div><div class="stat-label">Duplicados tras el control de llave</div></div>
+    <div class="stat-card"><div class="stat-value">{{ comp.registros_en_revision_final | kfmt }}</div><div class="stat-label">Registros en revisión (trazables)</div></div>
+  </div>
+  <div class="callout info">{{ comp.nota_completitud }}</div>
+  <p class="body-text" style="margin-top:10px;">Total verificado: {{ comp.total_verificado | kfmt }} registros recibidos = {{ comp.registros_en_destino_final | kfmt }} en destino + {{ comp.registros_en_revision_final | kfmt }} en revisión. Sin control de llave de negocio, cada recarga completa habría duplicado el histórico ({{ comp.duplicados_generados_por_recargas_sin_control }}); con el control, los duplicados tras cada recarga son {{ comp.duplicados_despues_del_control }}.</p>
+</section>
+
+<!-- 5. Descargas de resultados -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>5. Resultado tratado, para consulta</h2>
+  <p class="body-text">Snapshot del resultado de la Iteración 3 (destino final), exportado desde el proceso verificado. SQL Server sigue siendo el destino real del paquete SSIS; esta es la foto publicable para consulta y descarga.</p>
+  <div class="grid grid-2">
+    <div class="source-card">
+      <div class="source-head"><div class="source-title">✅ Dataset tratado</div></div>
+      <p class="body-text" style="margin:0 0 10px;">28.122 registros válidos, con columnas de trazabilidad (<code>clave_negocio</code>, <code>outlier_iqr_extremo</code>, <code>iteracion_carga</code>).</p>
+      <a class="btn" href="{{ url_for('descargar_etapa3_tratado') }}">⬇ Descargar CSV</a>
+    </div>
+    <div class="source-card">
+      <div class="source-head"><div class="source-title">🔎 Registros en revisión</div></div>
+      <p class="body-text" style="margin:0 0 10px;">345 registros separados por regla, con su valor original conservado y el <code>motivo_revision</code>.</p>
+      <a class="btn" href="{{ url_for('descargar_etapa3_revision') }}">⬇ Descargar CSV</a>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Recursos técnicos -->
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>6. Recursos técnicos publicados en el repositorio</h2>
+  <div class="card">
+    <ul class="clean">
+      <li><code>etapa3/sql/</code> — scripts de base de datos, staging, tablas de referencia, destino/revisión, tablas temporales de lote y el procedimiento de MERGE idempotente.</li>
+      <li><code>etapa3/MigracionMineriaDeDatos/</code> — proyecto de Visual Studio con el paquete SSIS (<code>Package.dtsx</code>).</li>
+      <li>Sin contraseñas ni cadenas de conexión con credenciales: el Connection Manager usa autenticación integrada de Windows / LocalDB.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="footer-note">Resultados verificados contra el dataset consolidado de 28.467 registros de la Etapa 1 y el diagnóstico de calidad de la Etapa 2 · {{ generado }}</div>
+{% endblock %}
