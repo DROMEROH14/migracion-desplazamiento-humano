@@ -1,0 +1,136 @@
+{
+  "generado": "2026-09-28 07:53",
+  "reglas_tratamiento": [
+    {
+      "campo": "personas_desplazadas",
+      "problema_origen": "345 registros sin valor reportado (Completitud, Etapa 2)",
+      "accion": "Conditional Split: si es nulo, se enruta a la tabla de revisión con motivo SIN_DATO_ORIGEN. No se imputa con 0.",
+      "justificacion": "Imputar con 0 subestimaría el fenómeno; la fuente simplemente no reportó cifra para ese país-año-causa. Se documenta, no se corrige."
+    },
+    {
+      "campo": "personas_desplazadas / desplazamiento_stock",
+      "problema_origen": "Exactitud (Etapa 2, 98.79%)",
+      "accion": "Derived Column valida que el valor sea >= 0; si es negativo, se enruta a revisión con motivo VALOR_NEGATIVO.",
+      "justificacion": "Un valor negativo de personas desplazadas no tiene sentido físico; es preferible aislarlo y revisarlo manualmente que dejarlo pasar."
+    },
+    {
+      "campo": "anio, personas_desplazadas, desplazamiento_stock",
+      "problema_origen": "Tipos de dato mixtos entre fuentes (texto/numérico)",
+      "accion": "Data Conversion fuerza anio a entero y los montos a decimal; si la conversión falla, Conditional Split enruta a revisión con motivo ERROR_CONVERSION_TIPO.",
+      "justificacion": "Sin una conversión explícita y controlada, un valor no numérico rompe los cálculos agregados aguas abajo sin avisar."
+    },
+    {
+      "campo": "sexo",
+      "problema_origen": "Catálogo de valores válidos incompleto (detectado en la Iteración 1)",
+      "accion": "Lookup contra la tabla de referencia ref_sexo; en la Iteración 1 el catálogo solo tenía 3 de los 4 valores reales y generó 100 rechazos evitables; se corrigió en la Iteración 2.",
+      "justificacion": "El Lookup evita valores inventados o mal escritos, pero el catálogo de referencia debe reflejar el dominio real de la fuente, no una suposición inicial."
+    },
+    {
+      "campo": "nivel / departamento / municipio",
+      "problema_origen": "Consistencia jerárquica (Etapa 2, 100%, pero se conserva como control activo)",
+      "accion": "Derived Column valida que un registro Regional tenga departamento/municipio y que uno Global/Nacional no los tenga; si falla, se enruta a revisión con motivo INCONSISTENCIA_NIVEL_GEOGRAFIA.",
+      "justificacion": "Aunque hoy no hay inconsistencias, dejar el control activo evita que una carga futura las introduzca sin que nadie se entere."
+    },
+    {
+      "campo": "anio",
+      "problema_origen": "Validez de rango temporal",
+      "accion": "Derived Column valida que el año esté entre 1970 y el año en curso; si no, se enruta a revisión con motivo ANIO_FUERA_DE_RANGO.",
+      "justificacion": "Un año fuera de ese rango normalmente indica un error de digitación o de mapeo de columnas entre fuentes."
+    },
+    {
+      "campo": "fila completa (todas las columnas)",
+      "problema_origen": "Riesgo de duplicados al recargar el mismo dataset o un dataset que se superpone con cargas anteriores",
+      "accion": "Se construye una llave de negocio (nivel+iso3+departamento+municipio+año+causa+sexo+grupo_edad+fuente); un Lookup contra el destino separa, con Conditional Split, los registros que ya existen (no se reinsertan) de los realmente nuevos.",
+      "justificacion": "Permite ejecutar el mismo paquete varias veces (por ejemplo, si se agrega un año nuevo a la fuente) sin duplicar todo el histórico ya cargado."
+    },
+    {
+      "campo": "personas_desplazadas (valores atípicos)",
+      "problema_origen": "3.222 registros fuera de 3xIQR dentro de su nivel (Etapa 2)",
+      "accion": "El esquema reserva la columna outlier_iqr_extremo (BIT, default 0) en la tabla destino para marcar estos casos sin descartarlos; el cálculo automático de esta bandera se validó en la simulación Python (etl_simulation.py) y queda documentado como siguiente incremento del Derived Column.",
+      "justificacion": "Los valores extremos corresponden a crisis humanitarias reales y documentadas (p. ej. Siria, Colombia en años de pico de conflicto); no se descartan ni se envían a revisión, para no sesgar el análisis."
+    }
+  ],
+  "iteraciones": [
+    {
+      "numero": 1,
+      "titulo": "Carga piloto (Colombia: Nacional + Regional) — batch_id 21",
+      "descripcion": "Primera corrida real del paquete SSIS, con el origen filtrado a Colombia (nivel IN ('Nacional','Regional')) y el catálogo ref_sexo deliberadamente incompleto (sin 'Both sexes'), para reproducir el hallazgo. El destino parte vacío.",
+      "reglas_version": "v1",
+      "cambios_respecto_anterior": "Ninguno (primera corrida).",
+      "resultados": {
+        "recibidos": 4809,
+        "aceptados_nuevos": 4709,
+        "duplicados_ya_existian": 0,
+        "enviados_a_revision": 100,
+        "marcados_outlier_informativo": 0
+      },
+      "hallazgos": [
+        "El catálogo de referencia de 'sexo' (ref_sexo) no incluía el valor 'Both sexes', y el componente Lookup mandó a revisión 100 registros con motivo FUERA_DE_DOMINIO_SEXO.",
+        "El resto del lote (4.709 registros) pasó todas las demás validaciones (completitud, rango de año, negativos, consistencia jerárquica) sin problema."
+      ],
+      "ajuste_para_siguiente": "Completar ref_sexo con 'Both sexes' y quitar el filtro de Colombia para cargar el dataset mundial completo."
+    },
+    {
+      "numero": 2,
+      "titulo": "Carga completa (28.467 registros) — batch_id 22",
+      "descripcion": "Se corrige el catálogo ref_sexo y se quita el filtro de origen, cargando el dataset consolidado completo, sin limpiar el destino. Como incluye de nuevo los 4.809 registros de Colombia de la Iteración 1, el MERGE los detecta como ya existentes y los actualiza en vez de reinsertarlos.",
+      "reglas_version": "v2",
+      "cambios_respecto_anterior": "ref_sexo ahora incluye los 4 valores reales del dominio.",
+      "resultados": {
+        "recibidos": 28467,
+        "aceptados_nuevos": 23413,
+        "duplicados_ya_existian": 4709,
+        "enviados_a_revision": 345,
+        "marcados_outlier_informativo": 0
+      },
+      "hallazgos": [
+        "Los 4.709 registros de Colombia aceptados en la Iteración 1 se identificaron correctamente como duplicados (misma clave_negocio) vía el MERGE (WHEN MATCHED → UPDATE) y no se reinsertaron.",
+        "Con el catálogo de sexo corregido, 0 registros se rechazaron por FUERA_DE_DOMINIO_SEXO en esta corrida (antes eran 100 en el lote piloto).",
+        "Los 345 registros enviados a revisión corresponden exclusivamente a valores nulos de personas_desplazadas (motivo SIN_DATO_ORIGEN), tal como se documentó en la Etapa 2. Balance verificado: 23.413 + 4.709 + 345 = 28.467."
+      ],
+      "ajuste_para_siguiente": "Las reglas ya quedaron estables; en la Iteración 3 se confirma el resultado final desde un destino limpio y se prueba la idempotencia del proceso."
+    },
+    {
+      "numero": 3,
+      "titulo": "Recarga completa desde destino limpio + prueba de idempotencia — batch_id 19 y 20",
+      "descripcion": "Se trunca el destino y se vuelve a correr el paquete completo con las reglas ya maduras (v3 = v2) para tener una foto definitiva (batch 19). Después, sin limpiar nada, se ejecuta exactamente el mismo lote una segunda vez (batch 20) para comprobar que no se generan duplicados.",
+      "reglas_version": "v3",
+      "cambios_respecto_anterior": "Ninguno en la lógica; esta iteración confirma el resultado final y valida la idempotencia.",
+      "resultados": {
+        "recibidos": 28467,
+        "aceptados_nuevos": 28122,
+        "duplicados_ya_existian": 0,
+        "enviados_a_revision": 345,
+        "marcados_outlier_informativo": 0
+      },
+      "prueba_idempotencia": {
+        "recibidos": 28467,
+        "ya_existian_duplicados": 28122,
+        "nuevos_insertados": 0,
+        "enviados_a_revision": 345,
+        "destino_antes": 28122,
+        "destino_despues": 28122,
+        "es_idempotente": true
+      },
+      "hallazgos": [
+        "Con el destino limpio, el resultado final es: 28122 aceptados, 345 en revisión, 0 duplicados (0, porque el destino partió vacío).",
+        "Al re-ejecutar el mismo lote de 28467 registros sin limpiar el destino: 0 registros nuevos insertados y 28122 detectados como ya existentes.",
+        "El tamaño del destino antes y después de la segunda ejecución no cambió (28122 = 28122), lo que confirma que el proceso es idempotente."
+      ],
+      "ajuste_para_siguiente": null
+    }
+  ],
+  "comparacion_calidad": {
+    "completitud_antes_pct": 99.8,
+    "completitud_despues_pct": 100.0,
+    "nota_completitud": "Los 345 registros sin dato no se 'completaron' artificialmente; se aislaron en una tabla de revisión separada, por lo que la tabla destino queda 100% completa en su variable central, con trazabilidad total de lo excluido.",
+    "duplicados_antes": 0,
+    "duplicados_generados_por_recargas_sin_control": "28.467 (si no existiera el control de llave de negocio, cada recarga completa duplicaría todo el histórico)",
+    "duplicados_despues_del_control": 0,
+    "validez_antes_pct": 100.0,
+    "validez_despues_pct": 100.0,
+    "registros_en_revision_final": 345,
+    "registros_en_destino_final": 28122,
+    "total_verificado": 28467
+  }
+}

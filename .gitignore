@@ -1,9 +1,14 @@
-﻿__pycache__/
-*.pyc
+pycache/
+.pyc
 .venv/
 venv/
 env/
 .env
 .DS_Store
 instance/
-*.log
+.log
+
+# Visual Studio / SSIS build artifacts
+bin/
+obj/
+*.dtproj.user
