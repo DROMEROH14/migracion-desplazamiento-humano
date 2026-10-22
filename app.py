@@ -305,6 +305,25 @@ def descargar_etapa3_revision():
     return send_from_directory(DATA_DIR, "registros_revision_etapa3.csv", as_attachment=True)
 
 
+# --------------------------------------------------------------------------
+# Etapa 4 — Descubrimiento de conocimiento evidente (Power BI)
+# --------------------------------------------------------------------------
+POWERBI_URL = (
+    "https://app.powerbi.com/view?r=eyJrIjoiNzllZjU5Y2MtMmMxNy00YTBjLTg2YzEtNDA5YjA2YmFhY2JhIiwi"
+    "dCI6IjA3ZGE2N2EwLTFmNDMtNGU4Yy05NzdmLTVmODhiNjQ3MGVlNiIsImMiOjR9"
+)
+POWERBI_PORTADA = POWERBI_URL + "&pageName=e54272c897462614bbaf"
+
+
+@app.route("/conocimiento-evidente")
+def conocimiento_evidente_view():
+    return render_template(
+        "conocimiento_evidente.html",
+        active="conocimiento",
+        powerbi_url=POWERBI_PORTADA,
+    )
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
