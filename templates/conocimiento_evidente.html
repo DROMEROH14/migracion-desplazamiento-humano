@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Etapa 4 — Conocimiento evidente{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Etapa 4</span>
+  <h1 class="page-title">Descubrimiento de conocimiento evidente</h1>
+  <p class="page-desc">Tablero analítico en Power BI construido sobre el dataset tratado en la Etapa 3 (28.122 registros). Responde cuatro preguntas de negocio mediante indicadores DAX, visualizaciones y segmentadores.</p>
+</div>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Propósito</h2>
+  <p class="body-text">Pasar del dato limpio al conocimiento que se ve a simple vista: cómo se compone la población desplazada, dónde se concentra en Colombia, cómo cambió en el tiempo y qué combinaciones de país, causa, sexo y edad sobresalen. Cada hallazgo se documenta con su pregunta, variables, evidencia, interpretación, utilidad y limitación.</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Preguntas que responde el tablero</h2>
+  <div class="grid grid-2">
+    <div class="card"><div class="source-title">👥 Tablero 1 · Composición</div><p class="body-text" style="margin:8px 0 0;">¿Cómo se compone la población desplazada por causa, sexo y grupo de edad?</p></div>
+    <div class="card"><div class="source-title">🗺️ Tablero 2 · Territorio</div><p class="body-text" style="margin:8px 0 0;">¿En qué departamentos y municipios de Colombia se concentra el desplazamiento?</p></div>
+    <div class="card"><div class="source-title">📈 Tablero 3 · Evolución</div><p class="body-text" style="margin:8px 0 0;">¿Cómo han cambiado los nuevos desplazamientos entre 2009 y 2024?</p></div>
+    <div class="card"><div class="source-title">🔀 Tablero 4 · Multivariado</div><p class="body-text" style="margin:8px 0 0;">¿Qué combinaciones de país, causa, sexo y edad destacan?</p></div>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Tablero interactivo</h2>
+  <div class="card" style="padding:10px;">
+    <iframe title="Migración y Desplazamiento Humano" src="{{ powerbi_url }}" frameborder="0" allowfullscreen="true"
+            style="width:100%;aspect-ratio:16/9;min-height:420px;border:0;border-radius:8px;"></iframe>
+  </div>
+  <p class="body-text" style="margin-top:10px;">
+    <a class="btn" href="{{ powerbi_url }}" target="_blank" rel="noopener">↗ Abrir el tablero en pantalla completa</a>
+  </p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Fuente de datos y periodo analizado</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="source-title">Fuentes</div>
+      <ul class="body-text" style="margin:8px 0 0 18px;">
+        <li>IDMC — Global Internal Displacement Database (GIDD): flujo anual de nuevos desplazamientos.</li>
+        <li>IDMC — Estimaciones SADD: población desplazada interna por sexo y edad (stock a fin de año).</li>
+        <li>CNMH — Desplazamiento forzado histórico por municipio (Colombia).</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="source-title">Periodo y unidad de análisis</div>
+      <ul class="body-text" style="margin:8px 0 0 18px;">
+        <li>Cobertura: 1980–2024 (CNMH 1980–2005; IDMC 2008–2024).</li>
+        <li>Datos: dataset tratado con SSIS en la Etapa 3, 28.122 registros.</li>
+        <li>Unidad: cifras agregadas de desplazamientos por país o municipio, año, causa, sexo y edad. No son personas únicas.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="body-text" style="margin-top:12px;"><a class="btn ghost" href="{{ url_for('descargar_etapa3_tratado') }}">⬇ Descargar dataset tratado (CSV)</a></p>
+</section>
+{% endblock %}
