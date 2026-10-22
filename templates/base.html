@@ -13,17 +13,28 @@
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-badge">MD</div>
+      <img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo del proyecto">
       <div>
         <div class="brand-title">Minería de Datos</div>
         <div class="brand-sub">Migración y Desplazamiento</div>
       </div>
     </div>
 
-    <div class="stage-group">
-      <div class="stage-head">
-        <span class="stage-label">Etapa 1</span>
+    <div class="stage-group static">
+            <nav class="nav">
+        <a href="{{ url_for('index') }}" class="{{ 'active' if active=='inicio' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+          Inicio / Dashboard
+        </a>
+      </nav>
+    </div>
+
+    <div class="stage-group{{ ' open' if active in ['problema','preguntas','necesidades','fuentes','dataset','diccionario','calidad','limitaciones'] else '' }}" data-stage="1">
+      <div class="stage-head" role="button" tabindex="0" aria-expanded="{{ 'true' if active in ['problema','preguntas','necesidades','fuentes','dataset','diccionario','calidad','limitaciones'] else 'false' }}">
+        <span class="stage-num">1</span>
+        <span class="stage-text"><span class="stage-label">Etapa 1</span><span class="stage-sub">Definición</span></span>
         <span class="stage-progress">8/8</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
       </div>
       <nav class="nav">
         <a href="{{ url_for('problema') }}" class="{{ 'active' if active=='problema' else '' }}">
@@ -61,10 +72,12 @@
       </nav>
     </div>
 
-    <div class="stage-group">
-      <div class="stage-head">
-        <span class="stage-label">Etapa 2</span>
+    <div class="stage-group{{ ' open' if active in ['calidad_datos'] else '' }}" data-stage="2">
+      <div class="stage-head" role="button" tabindex="0" aria-expanded="{{ 'true' if active in ['calidad_datos'] else 'false' }}">
+        <span class="stage-num">2</span>
+        <span class="stage-text"><span class="stage-label">Etapa 2</span><span class="stage-sub">Calidad</span></span>
         <span class="stage-progress">1/1</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
       </div>
       <nav class="nav">
         <a href="{{ url_for('calidad_datos_view') }}" class="{{ 'active' if active=='calidad_datos' else '' }}">
@@ -74,10 +87,12 @@
       </nav>
     </div>
 
-    <div class="stage-group">
-      <div class="stage-head">
-        <span class="stage-label">Etapa 3</span>
+    <div class="stage-group{{ ' open' if active in ['etapa3'] else '' }}" data-stage="3">
+      <div class="stage-head" role="button" tabindex="0" aria-expanded="{{ 'true' if active in ['etapa3'] else 'false' }}">
+        <span class="stage-num">3</span>
+        <span class="stage-text"><span class="stage-label">Etapa 3</span><span class="stage-sub">ETL con SSIS</span></span>
         <span class="stage-progress">1/1</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
       </div>
       <nav class="nav">
         <a href="{{ url_for('etapa3_view') }}" class="{{ 'active' if active=='etapa3' else '' }}">
@@ -87,25 +102,17 @@
       </nav>
     </div>
 
-    <div class="stage-group">
-      <div class="stage-head">
-        <span class="stage-label">Etapa 4</span>
+    <div class="stage-group{{ ' open' if active in ['conocimiento'] else '' }}" data-stage="4">
+      <div class="stage-head" role="button" tabindex="0" aria-expanded="{{ 'true' if active in ['conocimiento'] else 'false' }}">
+        <span class="stage-num">4</span>
+        <span class="stage-text"><span class="stage-label">Etapa 4</span><span class="stage-sub">Conocimiento</span></span>
         <span class="stage-progress">1/1</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
       </div>
       <nav class="nav">
         <a href="{{ url_for('conocimiento_evidente_view') }}" class="{{ 'active' if active=='conocimiento' else '' }}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
           Conocimiento evidente
-        </a>
-      </nav>
-    </div>
-
-    <div class="stage-group">
-      <div class="stage-head"><span class="stage-label">General</span></div>
-      <nav class="nav">
-        <a href="{{ url_for('index') }}" class="{{ 'active' if active=='inicio' else '' }}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-          Inicio / Dashboard
         </a>
       </nav>
     </div>
@@ -259,6 +266,25 @@
     });
   }, { threshold: 0.3 });
   els.forEach((el) => obs.observe(el));
+})();
+</script>
+<script>
+(function(){
+  var KEY='navOpenStages', saved={};
+  try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  document.querySelectorAll('.stage-group[data-stage]').forEach(function(g){
+    var n=g.getAttribute('data-stage'), head=g.querySelector('.stage-head');
+    if(!g.classList.contains('open') && saved[n]) g.classList.add('open');
+    function sync(){ head.setAttribute('aria-expanded', g.classList.contains('open')?'true':'false'); }
+    function toggle(){
+      g.classList.toggle('open'); sync();
+      saved[n]=g.classList.contains('open');
+      try{ localStorage.setItem(KEY, JSON.stringify(saved)); }catch(e){}
+    }
+    sync();
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggle(); } });
+  });
 })();
 </script>
 </body>

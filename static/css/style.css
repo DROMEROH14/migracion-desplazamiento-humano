@@ -356,3 +356,25 @@ table.tbl tr:hover td{ background: rgba(255,255,255,.02); color:var(--text); }
 .tech-name{ display:block; font-weight:700; font-size:13.5px; color:#fff; margin-bottom:4px; }
 .tech-use{ display:block; font-size:12px; color:var(--text-dim); line-height:1.55; }
 .tech-note{ font-size:13px; color:var(--text-dim); line-height:1.7; margin:0; }
+
+
+/* ===== Menú lateral mejorado ===== */
+.sidebar > *{ flex-shrink:0; }
+.sidebar{ gap:14px; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+.brand-logo{ width:44px; height:44px; border-radius:12px; flex-shrink:0; box-shadow:0 6px 18px rgba(42,127,158,.35); }
+.stage-group{ overflow:visible; background:rgba(255,255,255,.025); border:1px solid var(--border); border-radius:14px; padding:4px; }
+.stage-group.static{ background:none; border:none; padding:0; }
+.stage-head{ gap:10px; padding:8px 8px; margin:0; border-radius:10px; cursor:pointer; user-select:none; transition:background .15s ease; }
+.stage-head:hover{ background:var(--panel); }
+.stage-head:focus-visible{ outline:2px solid var(--accent-3); outline-offset:1px; }
+.stage-num{ width:24px; height:24px; border-radius:8px; background:var(--grad); color:#0a0d13; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.stage-text{ display:flex; flex-direction:column; line-height:1.15; flex:1; min-width:0; }
+.stage-text .stage-label{ color:var(--text); font-size:11px; }
+.stage-sub{ font-size:11px; color:var(--text-dim); margin-top:2px; }
+.stage-head .chev{ width:15px; height:15px; color:var(--text-faint); transition:transform .2s ease; flex-shrink:0; }
+.stage-group.open .stage-head .chev{ transform:rotate(180deg); }
+.stage-group .nav{ display:none; padding:2px 2px 4px; }
+.stage-group.open .nav, .stage-group.static .nav{ display:flex; }
+.stage-group.open .stage-head{ margin-bottom:2px; }
+.nav a.active::before{ left:-8px; }
+.stage-group.static .nav a{ font-weight:600; }
