@@ -100,3 +100,33 @@ Pasos seguidos para el despliegue:
 Cada vez que se actualiza el código en `main`, se debe volver a la consola Bash
 de PythonAnywhere, hacer `git pull` dentro de la carpeta del proyecto y recargar
 la Web App desde la pestaña "Web".
+
+---
+
+## Etapa 5 — Análisis multidimensional (modelo estrella)
+
+Nueva sección de la app: menú **Etapa 5 → Análisis multidimensional** (`/analisis-multidimensional`) y cuatro vistas interactivas (`/multidimensional/q1` … `q4`).
+URL publicada: https://dromeroh14.pythonanywhere.com/analisis-multidimensional
+
+```
+├── olap.py                    # Motor OLAP: consultas parametrizadas sobre el modelo (drill-down, roll-up, slice, dice, pivot)
+├── md_views.py                # Construcción de las 4 vistas, indicadores, matrices y conocimientos (todo desde SQL)
+├── etapa5/
+│   ├── etl_estrella.py        # ETL reproducible: dataset tratado → SQLite + 20 validaciones
+│   ├── sql/01_crear_esquema_estrella.sql   # DDL: dimensiones, hechos, claves, índices, vista vw_hechos
+│   ├── sql/02_consultas_olap.sql           # Consultas de las cinco operaciones y de las vistas
+│   ├── sql/03_validaciones.sql             # Consultas de validación del modelo
+│   ├── diagrama_modelo_estrella.svg/.png   # Diagrama del modelo
+│   └── DICCIONARIO_Y_MAPEO.md              # Diccionario, mapeo variables → campos, medidas, jerarquías
+└── templates/md_home.html, md_vista.html   # Páginas de la sección
+```
+
+**Configurar, cargar y ejecutar** (sin dependencias nuevas: `sqlite3` viene con Python):
+
+```bash
+pip install -r requirements.txt
+python etapa5/etl_estrella.py     # crea data/estrella.db y data/validaciones_estrella.json (20/20 validaciones)
+python app.py                     # abrir /analisis-multidimensional
+```
+
+Si `data/estrella.db` no existe, la aplicación la construye sola al abrir la sección (el archivo está en `.gitignore` porque se regenera desde `data/dataset_tratado_etapa3.csv`).

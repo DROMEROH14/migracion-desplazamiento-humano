@@ -12,3 +12,5 @@ instance/
 bin/
 obj/
 *.dtproj.user
+data/estrella.db
+data/validaciones_estrella.json
