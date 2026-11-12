@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% from "_md_macros.html" import conocimiento %}
+{% block title %}Etapa 5 — Análisis multidimensional{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Etapa 5</span>
+  <h1 class="page-title">Análisis multidimensional</h1>
+  <p class="page-desc">Modelo estrella en SQLite sobre el dataset tratado (28.122 registros) y cuatro vistas interactivas que cruzan dimensiones, cambian de nivel de detalle y recalculan las medidas.</p>
+</div>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Propósito de la etapa</h2>
+  <p class="body-text">Pasar de lo evidente a lo que solo aparece al cruzar perspectivas: ¿cuándo y dónde cambió el flujo según la causa?, ¿cómo se movió el territorio colombiano entre periodos?, ¿quiénes son los desplazados según edad, sexo y causa?, ¿qué tan comparables son las fuentes? Para esto se construye un modelo estrella, se valida contra los datos tratados y se exponen las operaciones OLAP (drill-down, roll-up, slice, dice y pivot) sobre consultas reales al modelo.</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Relación con el conocimiento evidente (Etapa 4)</h2>
+  <div class="grid grid-2">
+    <div class="card"><div class="source-title">Lo evidente</div><p class="body-text md-tight">Totales por causa, perfil por sexo y edad, «Antioquia primero» en Colombia, aumento del flujo entre 2009 y 2024 y diferencias entre fuentes.</p></div>
+    <div class="card"><div class="source-title">Lo que requiere profundidad</div><p class="body-text md-tight">Qué parte del aumento es conflicto y en qué año y país; cómo cambió el peso de cada departamento por periodo; si el perfil de edad cambia con la causa y el país; y cuánto difieren CNMH e IDMC en periodos equivalentes.</p></div>
+  </div>
+  <p class="body-text md-tight" style="margin-top:10px"><strong>Unidad de análisis vs. granularidad.</strong> La unidad de análisis es la cifra reportada de desplazamiento por fuente, lugar, periodo, causa y perfil. La granularidad del hecho es una fila por combinación (periodo × geografía × causa × perfil × fuente): 28.122 filas, sin duplicados (restricción UNIQUE en la base).</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Acceso a las cuatro vistas</h2>
+  <div class="grid grid-2">
+    {% for k, v in vistas %}
+    <a class="card md-link" href="{{ url_for('md_vista', vid=k) }}">
+      <div class="source-title">Vista {{ loop.index }} · {{ v.dims }}</div>
+      <h3 class="md-h3">{{ v.titulo }}</h3>
+      <p class="body-text md-tight">{{ v.pregunta }}</p>
+      <span class="md-go">Abrir vista →</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Modelo estrella</h2>
+  <div class="card md-svgwrap">
+    <svg viewBox="0 0 1000 640" role="img" aria-label="Diagrama del modelo estrella" class="md-svg">
+      <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#96a2be"/></marker></defs>
+      <g stroke="#96a2be" stroke-width="1.6" fill="none">
+        <line x1="400" y1="230" x2="250" y2="130" marker-end="url(#ar)"/>
+        <line x1="600" y1="230" x2="750" y2="130" marker-end="url(#ar)"/>
+        <line x1="400" y1="420" x2="250" y2="500" marker-end="url(#ar)"/>
+        <line x1="600" y1="420" x2="750" y2="500" marker-end="url(#ar)"/>
+        <line x1="500" y1="150" x2="500" y2="215"/>
+      </g>
+      <g font-family="Segoe UI, Inter, sans-serif" font-size="13">
+        <!-- hecho -->
+        <rect x="380" y="215" width="240" height="220" rx="10" fill="#1d2840" stroke="#5b8cff" stroke-width="2"/>
+        <text x="500" y="240" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">hechos_desplazamiento</text>
+        <line x1="380" y1="250" x2="620" y2="250" stroke="#5b8cff"/>
+        <g fill="#c9d2e8"><text x="392" y="270">hecho_key (PK)</text><text x="392" y="290">tiempo_key (FK)</text><text x="392" y="308">geo_key (FK)</text><text x="392" y="326">causa_key (FK)</text><text x="392" y="344">perfil_key (FK)</text><text x="392" y="362">fuente_key (FK)</text></g>
+        <g fill="#29d9bd"><text x="392" y="384">personas_desplazadas</text><text x="392" y="402">desplazamiento_stock</text><text x="392" y="420">personas_por_anio</text></g>
+        <!-- dim_causa arriba -->
+        <rect x="390" y="30" width="220" height="120" rx="10" fill="#1d2840" stroke="#ff6b6b" stroke-width="2"/>
+        <text x="500" y="54" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">dim_causa</text>
+        <line x1="390" y1="64" x2="610" y2="64" stroke="#ff6b6b"/>
+        <g fill="#c9d2e8"><text x="402" y="86">causa_key (PK)</text><text x="402" y="106">causa</text><text x="402" y="126" fill="#96a2be" font-size="11">Conflicto / Desastre</text></g>
+        <line x1="500" y1="150" x2="500" y2="215" stroke="#96a2be" stroke-width="1.6" marker-end="url(#ar)"/>
+        <!-- dim_tiempo -->
+        <rect x="20" y="30" width="230" height="140" rx="10" fill="#1d2840" stroke="#8b6bff" stroke-width="2"/>
+        <text x="135" y="54" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">dim_tiempo</text>
+        <line x1="20" y1="64" x2="250" y2="64" stroke="#8b6bff"/>
+        <g fill="#c9d2e8"><text x="32" y="86">tiempo_key (PK)</text><text x="32" y="106">periodo · anio_inicio · anio_fin</text><text x="32" y="126">duracion_anios · decada</text><text x="32" y="146" fill="#ffb454">ventana → periodo</text></g>
+        <!-- dim_geografia -->
+        <rect x="750" y="30" width="230" height="160" rx="10" fill="#1d2840" stroke="#29d9bd" stroke-width="2"/>
+        <text x="865" y="54" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">dim_geografia</text>
+        <line x1="750" y1="64" x2="980" y2="64" stroke="#29d9bd"/>
+        <g fill="#c9d2e8"><text x="762" y="86">geo_key (PK)</text><text x="762" y="106">ambito · nivel · iso3 · pais</text><text x="762" y="126">departamento · municipio</text><text x="762" y="150" fill="#ffb454">ámbito → país →</text><text x="762" y="168" fill="#ffb454">departamento → municipio</text></g>
+        <!-- dim_perfil -->
+        <rect x="20" y="470" width="230" height="150" rx="10" fill="#1d2840" stroke="#d98bff" stroke-width="2"/>
+        <text x="135" y="494" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">dim_perfil</text>
+        <line x1="20" y1="504" x2="250" y2="504" stroke="#d98bff"/>
+        <g fill="#c9d2e8"><text x="32" y="526">perfil_key (PK)</text><text x="32" y="546">sexo · grupo_edad</text><text x="32" y="566">ciclo_vida · orden_edad</text><text x="32" y="590" fill="#ffb454">ciclo de vida → grupo de edad</text></g>
+        <!-- dim_fuente -->
+        <rect x="750" y="470" width="230" height="150" rx="10" fill="#1d2840" stroke="#ffb454" stroke-width="2"/>
+        <text x="865" y="494" text-anchor="middle" fill="#fff" font-weight="700" font-size="15">dim_fuente</text>
+        <line x1="750" y1="504" x2="980" y2="504" stroke="#ffb454"/>
+        <g fill="#c9d2e8"><text x="762" y="526">fuente_key (PK)</text><text x="762" y="546">fuente_corta · fuente_nombre</text><text x="762" y="566">institucion · tipo_medida</text><text x="762" y="590" fill="#ffb454">institución → fuente</text></g>
+      </g>
+    </svg>
+  </div>
+  <p class="body-text md-tight" style="margin-top:12px"><strong>Por qué estrella:</strong> una sola tabla de hechos con las cantidades y cinco dimensiones que corresponden a perspectivas reales del problema (cuándo, dónde, por qué, quién y según qué fuente). Cada dimensión se une al hecho por una clave sustituta, lo que impide que las uniones multipliquen filas.</p>
+  <p class="body-text md-tight"><strong>Hecho:</strong> <code>{{ modelo.hecho.nombre }}</code> — {{ modelo.hecho.proposito }}<br><strong>Granularidad:</strong> {{ modelo.hecho.granularidad }}</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Dimensiones, atributos y jerarquías</h2>
+  <div class="table-wrap"><table class="md-table">
+    <thead><tr><th>Dimensión</th><th>Clave</th><th>Atributos</th><th>Jerarquía</th></tr></thead>
+    <tbody>{% for d in modelo.dimensiones %}<tr><th>{{ d[0] }}</th><td>{{ d[1] }}</td><td>{{ d[2] }}</td><td>{{ d[3] }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="md-note">Las jerarquías son relaciones de agrupación válidas: cada municipio pertenece a un solo departamento, cada departamento a Colombia, cada año a una sola ventana y cada grupo de edad a un solo ciclo de vida.</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Medidas</h2>
+  <div class="table-wrap"><table class="md-table md-left">
+    <thead><tr><th>Medida</th><th>Fórmula / agregación</th><th>Unidad</th><th>Cuándo se suma y cuándo no</th></tr></thead>
+    <tbody>{% for m in modelo.medidas %}<tr><th>{{ m[0] }}</th><td>{{ m[1] }}</td><td>{{ m[2] }}</td><td>{{ m[3] }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Operaciones multidimensionales (con ejemplo en vivo)</h2>
+  <div class="grid grid-2">
+    {% for o in operaciones %}
+    <div class="card"><div class="source-title">{{ o.op }}</div>
+      <dl class="md-dl">
+        <dt>Dimensiones y medida</dt><dd>{{ o.dims }}</dd>
+        <dt>Nivel / filtros</dt><dd>{{ o.filtros }}</dd>
+        <dt>Procedimiento</dt><dd>{{ o.proc }}<details class="md-sql"><summary>Ver SQL</summary><pre>{{ o.sql }}</pre></details></dd>
+        <dt>Resultado</dt><dd><strong>{{ o.resultado }}</strong></dd>
+      </dl>
+      <a class="btn" href="{{ url_for('md_vista', vid=o.vista) }}?{{ o.params }}">Ejecutar en la vista {{ o.vista[1] }} →</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Validación del modelo vs. datos tratados</h2>
+  <p class="body-text md-tight">{{ validaciones|selectattr('estado','equalto','Correcto')|list|length }} de {{ validaciones|length }} comprobaciones correctas.</p>
+  <div class="table-wrap"><table class="md-table md-left">
+    <thead><tr><th>#</th><th>Comprobación</th><th>Modelo</th><th>Origen</th><th>Estado</th></tr></thead>
+    <tbody>{% for v in validaciones %}<tr><td>{{ loop.index }}</td><td>{{ v.descripcion }}{% if v.nota %}<br><small>{{ v.nota }}</small>{% endif %}</td><td>{{ v.modelo }}</td><td>{{ v.origen }}</td><td>{{ v.estado }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Conocimientos multidimensionales descubiertos</h2>
+  <div class="table-wrap"><table class="md-table md-left">
+    <thead><tr><th>Vista</th><th>Hallazgo</th></tr></thead>
+    <tbody>{% for k, i, c in conocimientos %}<tr><th><a href="{{ url_for('md_vista', vid=k) }}">Vista {{ k[1] }} · K{{ i }}</a></th><td>{{ c.hallazgo }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="md-note">Cada conocimiento tiene sus ocho elementos (pregunta, dimensiones y medidas, procedimiento, evidencia, hallazgo, interpretación, utilidad y limitación) en la vista correspondiente.</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Limitaciones y conclusiones</h2>
+  <div class="grid grid-2">
+    <div class="card"><div class="source-title">Limitaciones</div>
+      <ul class="body-text md-ul">
+        <li>Los flujos suman desplazamientos, no personas únicas; el stock no se suma entre años.</li>
+        <li>GIDD, SADD y CNMH miden cosas distintas y nunca se suman entre sí.</li>
+        <li>2008 no tiene datos de conflicto; por eso se comparan ventanas equivalentes 2009–2016 y 2017–2024.</li>
+        <li>Desagregación por sexo y edad solo en parte de los registros; «No desagregado» ≠ cero.</li>
+        <li>Las asociaciones observadas no prueban causalidad; las explicaciones se presentan como hipótesis.</li>
+      </ul></div>
+    <div class="card"><div class="source-title">Conclusiones</div>
+      <ul class="body-text md-ul">
+        <li>El aumento reciente del flujo se explica sobre todo por el conflicto y está concentrado en pocos años y países.</li>
+        <li>En Colombia el peso territorial cambió entre periodos: el acumulado por departamento oculta focos municipales y temporales.</li>
+        <li>El perfil de edad de los desplazados cambia entre países más que entre causas.</li>
+        <li>CNMH e IDMC coinciden en el orden de magnitud pero no son intercambiables; hay que normalizar por año y citar la fuente.</li>
+      </ul></div>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Fuente de los datos y cobertura</h2>
+  <p class="body-text md-tight">IDMC — Global Internal Displacement Database (GIDD) y estimaciones SADD, 2008–2024, 211 países y territorios fuera de Colombia, además de Colombia; CNMH — Desplazamiento forzado histórico por municipio, 1980–2014 (periodos 1980-1988, 1989-1996, 1997-2004, 2005-2014). Dataset tratado en la Etapa 3: 28.122 registros. Repositorio: <a href="https://github.com/DROMEROH14/migracion-desplazamiento-humano" target="_blank" rel="noopener">github.com/DROMEROH14/migracion-desplazamiento-humano</a>.</p>
+</section>
+{% endblock %}

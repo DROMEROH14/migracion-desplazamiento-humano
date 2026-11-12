@@ -378,3 +378,42 @@ table.tbl tr:hover td{ background: rgba(255,255,255,.02); color:var(--text); }
 .stage-group.open .stage-head{ margin-bottom:2px; }
 .nav a.active::before{ left:-8px; }
 .stage-group.static .nav a{ font-weight:600; }
+
+/* ---------- Etapa 5 · Análisis multidimensional ---------- */
+.md-tight{margin:6px 0 0;line-height:1.55}
+.md-note{font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.45}
+.md-unit{font-size:12px;color:var(--accent-3);margin-top:4px}
+.md-kv{font-size:30px}
+.md-h3{margin:6px 0;font-size:17px}
+.md-go{display:inline-block;margin-top:8px;color:var(--accent);font-weight:600}
+.md-link{text-decoration:none;color:inherit;display:block;transition:border-color .15s,transform .15s}
+.md-link:hover{border-color:var(--accent);transform:translateY(-2px)}
+.md-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}
+.md-form label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--text-dim)}
+.md-form select{background:var(--panel-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:9px 10px;font-size:14px}
+.md-form .ctl select{border-color:rgba(91,140,255,.45)}
+.md-btns{display:flex;gap:8px;flex-wrap:wrap}
+.md-ghost{background:transparent!important;border:1px solid var(--border)!important;color:var(--text-dim)!important}
+.md-sel{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.md-sel-title{font-weight:700;font-size:13px}
+.chip{border:1px solid var(--border);border-radius:999px;padding:4px 11px;font-size:12.5px;color:var(--text-dim);background:var(--panel)}
+.chip.on{border-color:var(--accent);color:var(--text);background:rgba(91,140,255,.14)}
+.md-chart{position:relative;height:340px;margin-top:8px}
+.md-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.md-table th,.md-table td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;vertical-align:top}
+.md-table th:first-child,.md-table.md-left td,.md-table.md-left th{text-align:left}
+.md-table thead th{background:var(--panel-2);color:var(--text-dim);font-weight:600;position:sticky;top:0}
+.md-table tbody th{font-weight:600;text-align:left}
+.md-table td.tot,.md-table tfoot td,.md-table tfoot th{font-weight:700;background:rgba(91,140,255,.08)}
+.md-table tfoot th{text-align:left}
+.md-dl{margin:8px 0 12px;display:grid;grid-template-columns:150px 1fr;gap:6px 14px;font-size:13.5px;line-height:1.5}
+.md-dl dt{color:var(--accent-3);font-weight:600}
+.md-dl dd{margin:0;color:var(--text)}
+.md-know .md-dl{grid-template-columns:1fr;gap:2px}
+.md-know .md-dl dt{margin-top:8px}
+.md-sql summary{cursor:pointer;color:var(--accent);font-size:12.5px;margin-top:6px}
+.md-sql pre{white-space:pre-wrap;word-break:break-word;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:8px;font-size:11.5px;color:var(--text-dim)}
+.md-svgwrap{padding:10px;overflow:auto}
+.md-svg{width:100%;min-width:760px;height:auto}
+.md-ul{margin:8px 0 0 18px;line-height:1.55}
+@media(max-width:700px){.md-dl{grid-template-columns:1fr}.md-chart{height:300px}}

@@ -324,6 +324,52 @@ def conocimiento_evidente_view():
     )
 
 
+# --------------------------------------------------------------------------
+# Etapa 5 — Análisis multidimensional (modelo estrella en SQLite + operaciones OLAP)
+# --------------------------------------------------------------------------
+import md_views  # noqa: E402
+
+
+@app.template_filter("md_num")
+def md_num(x, pct=False):
+    from olap import fmt
+    return (fmt(x, 1) + " %") if pct else fmt(x, 0 if abs(x) >= 100 else 2)
+
+
+def _validaciones_estrella():
+    ruta = os.path.join(DATA_DIR, "validaciones_estrella.json")
+    if not os.path.exists(ruta):
+        import olap
+        olap.con().close()  # construye el modelo si no existe
+    with open(ruta, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+@app.route("/analisis-multidimensional")
+def md_home():
+    val = _validaciones_estrella()
+    return render_template(
+        "md_home.html", active="md_home", modelo=md_views.MODELO, operaciones=md_views.operaciones(),
+        conocimientos=md_views.resumen_conocimientos(), validaciones=val,
+        vistas=[(k, md_views.VISTAS[k]({})) for k in ("q1", "q2", "q3", "q4")],
+    )
+
+
+@app.route("/multidimensional/<vid>")
+def md_vista(vid):
+    if vid not in md_views.VISTAS:
+        return render_template("base.html", active=""), 404
+    v = md_views.VISTAS[vid](request.args)
+    return render_template("md_vista.html", active="md_" + vid, v=v, args=request.args)
+
+
+@app.route("/api/md/<vid>")
+def md_api(vid):
+    if vid not in md_views.VISTAS:
+        return jsonify({"error": "vista no encontrada"}), 404
+    return jsonify(md_views.VISTAS[vid](request.args))
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
