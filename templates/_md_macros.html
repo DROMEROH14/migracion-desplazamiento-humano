@@ -1,0 +1,15 @@
+{% macro conocimiento(c, n) %}
+<div class="card md-know">
+  <div class="source-title">Conocimiento {{ n }}</div>
+  <dl class="md-dl">
+    <dt>Pregunta</dt><dd>{{ c.pregunta }}</dd>
+    <dt>Dimensiones y medidas</dt><dd>{{ c.dims }}</dd>
+    <dt>Procedimiento</dt><dd>{{ c.procedimiento }}</dd>
+    <dt>Evidencia</dt><dd>{{ c.evidencia }}{% if c.sql %}<details class="md-sql"><summary>Ver consulta SQL</summary>{% for q in c.sql %}<pre>{{ q }}</pre>{% endfor %}</details>{% endif %}</dd>
+    <dt>Hallazgo</dt><dd><strong>{{ c.hallazgo }}</strong></dd>
+    <dt>Interpretación</dt><dd>{{ c.interpretacion }}</dd>
+    <dt>Utilidad</dt><dd>{{ c.utilidad }}</dd>
+    <dt>Limitación</dt><dd>{{ c.limitacion }}</dd>
+  </dl>
+</div>
+{% endmacro %}

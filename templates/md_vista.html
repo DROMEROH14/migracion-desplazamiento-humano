@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% from "_md_macros.html" import conocimiento %}
+{% block title %}Análisis multidimensional — {{ v.titulo }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <span class="eyebrow">Etapa 5 · Vista {{ v.id[1] }} de 4</span>
+  <h1 class="page-title">{{ v.titulo }}</h1>
+  <p class="page-desc"><strong>Pregunta:</strong> {{ v.pregunta }}</p>
+</div>
+
+<section class="block">
+  <div class="grid grid-3">
+    <div class="card"><div class="source-title">Dimensiones</div><p class="body-text md-tight">{{ v.dims }}</p></div>
+    <div class="card"><div class="source-title">Medidas</div><p class="body-text md-tight">{{ v.medidas }}</p></div>
+    <div class="card"><div class="source-title">Jerarquías</div><p class="body-text md-tight">{{ v.jerarquias }}</p></div>
+  </div>
+  <p class="body-text md-tight" style="margin-top:10px"><strong>Qué profundiza:</strong> {{ v.profundiza }}</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Filtros y operaciones</h2>
+  <form method="get" class="md-form" id="mdform">
+    {% for f in v.filtros %}
+    <label>{{ f.label }} <small>({{ f.dim }})</small>
+      <select name="{{ f.name }}" onchange="this.form.submit()">
+        {% for val, txt in f.opts %}<option value="{{ val }}" {{ 'selected' if val == f.value else '' }}>{{ txt }}</option>{% endfor %}
+      </select>
+    </label>
+    {% endfor %}
+    {% for c in v.controles %}
+    <label class="ctl">{{ c.label }}
+      <select name="{{ c.name }}" onchange="this.form.submit()">
+        {% for val, txt in c.opts %}<option value="{{ val }}" {{ 'selected' if val == c.value else '' }}>{{ txt }}</option>{% endfor %}
+      </select>
+    </label>
+    {% endfor %}
+    <input type="hidden" name="pivot" id="pivotin" value="{{ '1' if v.pivot else '0' }}">
+    <div class="md-btns">
+      <button type="button" class="btn" onclick="document.getElementById('pivotin').value='{{ '0' if v.pivot else '1' }}';document.getElementById('mdform').submit()">⇄ Pivotar filas/columnas{{ ' (activo)' if v.pivot else '' }}</button>
+      <a class="btn md-ghost" href="{{ url_for('md_vista', vid=v.id) }}">Restablecer</a>
+    </div>
+  </form>
+  <div class="md-sel"><span class="md-sel-title">Selección activa:</span>
+    {% for s in v.seleccion %}<span class="chip{{ ' on' if s.activo else '' }}"><b>{{ s.filtro }}:</b> {{ s.valor }}</span>{% endfor %}
+    {% if v.pivot %}<span class="chip on"><b>Pivot:</b> activo</span>{% endif %}
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Indicadores</h2>
+  <div class="grid grid-3">
+    {% for k in v.kpis %}
+    <div class="stat-card"><div class="stat-label">{{ k.titulo }}</div><div class="stat-value md-kv">{{ k.valor }}</div>
+      <div class="md-unit">{{ k.unidad }}</div><div class="md-note">{{ k.nota }}</div></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Visualizaciones</h2>
+  <div class="grid grid-2">
+    {% for ch in v.charts %}
+    <div class="card"><div class="source-title">{{ ch.titulo }}</div>
+      <div class="md-chart"><canvas id="ch{{ loop.index }}"></canvas></div>
+      <div class="md-note">Unidad: {{ ch.unidad }}.{% if ch.nota %} {{ ch.nota }}{% endif %}</div></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Matriz: {{ v.matriz.filas }} × {{ v.matriz.columnas }}</h2>
+  <p class="body-text md-tight">Medida: <strong>{{ v.matriz.medida }}</strong> · valores en <strong>{{ v.matriz.unidad }}</strong>.
+    {% for n in v.matriz.notas %}<em>{{ n }}</em>{% endfor %}</p>
+  <div class="table-wrap"><table class="md-table">
+    <thead><tr><th>{{ v.matriz.filas }}</th>{% for c in v.matriz.col_labels %}<th>{{ c }}</th>{% endfor %}<th>Total</th></tr></thead>
+    <tbody>
+    {% set pctm = v.matriz.modo != 'valor' %}
+    {% for r in v.matriz.rows %}
+      <tr><th>{{ r.etiqueta }}</th>
+      {% for x in r.valores %}<td>{% if x is none %}—{% else %}{{ x|md_num(pctm) }}{% endif %}</td>{% endfor %}
+      <td class="tot">{% if r.total is none %}—{% else %}{{ r.total|md_num(pctm) }}{% endif %}</td></tr>
+    {% endfor %}
+    </tbody>
+    <tfoot><tr><th>Total</th>{% for x in v.matriz.col_totales %}<td>{% if x is none %}—{% else %}{{ x|md_num(pctm) }}{% endif %}</td>{% endfor %}<td class="tot">{{ v.matriz.total|md_num(pctm) }}</td></tr></tfoot>
+  </table></div>
+  <p class="md-note">«—» = sin dato reportado (no es cero). Los totales se recalculan al nivel de agrupación actual.</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Interpretación</h2>
+  <p class="body-text">{{ v.interpretacion }}</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Conocimientos multidimensionales</h2>
+  <div class="grid grid-2">
+    {% for c in v.conocimientos %}{{ conocimiento(c, loop.index) }}{% endfor %}
+  </div>
+  <p class="md-note">Los conocimientos se calculan con los filtros y niveles indicados en su procedimiento, independientemente de la selección activa arriba.</p>
+</section>
+
+<section class="block">
+  <div class="grid grid-2">
+    <div class="card"><div class="source-title">⚠ Limitación del análisis</div><p class="body-text md-tight">{{ v.limitacion }}</p></div>
+    <div class="card"><div class="source-title">✔ Decisión sustentada en los datos</div><p class="body-text md-tight">{{ v.decision }}</p></div>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Consultas ejecutadas sobre el modelo</h2>
+  <details class="md-sql"><summary>Ver el SQL que generó esta vista (selección activa)</summary>{% for q in v.sql %}<pre>{{ q }}</pre>{% endfor %}</details>
+  <p class="md-note">Fuente: IDMC (GIDD y SADD) y CNMH · modelo estrella sobre el dataset tratado (28.122 registros) · IDMC 2008–2024; CNMH 1980–2014.</p>
+</section>
+
+<script>
+(function(){
+  Chart.defaults.color='#c9d2e8'; Chart.defaults.borderColor='rgba(255,255,255,.08)';
+  var nf=new Intl.NumberFormat('es-CO');
+  var charts={{ v.charts|tojson }};
+  charts.forEach(function(c,i){
+    var horiz=!!c.horizontal;
+    var ds=c.datasets.map(function(d){
+      return {label:d.label,data:d.data,backgroundColor:d.colors||d.color,borderColor:d.color,borderWidth:c.tipo==='line'?2.5:0,tension:.25,pointRadius:3,fill:false};});
+    new Chart(document.getElementById('ch'+(i+1)),{type:c.tipo,data:{labels:c.labels,datasets:ds},options:{
+      indexAxis:horiz?'y':'x',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:ds.length>1,position:'bottom'},tooltip:{callbacks:{label:function(x){var v=horiz?x.parsed.x:x.parsed.y;return (x.dataset.label||'')+': '+nf.format(Math.round(v*100)/100);}}}},
+      scales:{x:{stacked:!!c.stacked,title:{display:horiz,text:c.unidad},ticks:{callback:function(v){return horiz?nf.format(v):this.getLabelForValue(v);}}},
+              y:{stacked:!!c.stacked,title:{display:!horiz,text:c.unidad},ticks:{callback:function(v){return horiz?this.getLabelForValue(v):nf.format(v);}}}}}});
+  });
+})();
+</script>
+{% endblock %}
