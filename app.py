@@ -373,3 +373,40 @@ def md_api(vid):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
+
+# --------------------------------------------------------------------------
+# Etapa 6 — Conocimiento oculto (Orange: supervisado, clustering y texto de YouTube)
+# --------------------------------------------------------------------------
+ETAPA6_DIR = os.path.join(BASE_DIR, "etapa6")
+# Enlace al video de sustentacion (<= 10 min). Pegar aqui la URL cuando se publique.
+VIDEO_ETAPA6_URL = ""
+ETAPA6_DESCARGAS = {
+    "etapa6_orange.ows": ("orange", "etapa6_orange.ows"),
+    "supervisado_gran_evento.csv": ("datos", "supervisado_gran_evento.csv"),
+    "clustering_paises.csv": ("datos", "clustering_paises.csv"),
+    "clustering_paises_log.csv": ("datos", "clustering_paises_log.csv"),
+    "comentarios_youtube.csv": ("datos", "comentarios_youtube.csv"),
+    "extraer_comentarios_youtube.py": ("youtube", "extraer_comentarios_youtube.py"),
+}
+
+
+@app.route("/conocimiento-oculto")
+def conocimiento_oculto():
+    return render_template(
+        "conocimiento_oculto.html", active="co", video_url=VIDEO_ETAPA6_URL,
+        informe_existe=os.path.exists(os.path.join(ETAPA6_DIR, "informe", "Informe_Etapa6_Conocimiento_Oculto.pdf")),
+    )
+
+
+@app.route("/etapa6/informe")
+def etapa6_informe():
+    return send_from_directory(os.path.join(ETAPA6_DIR, "informe"), "Informe_Etapa6_Conocimiento_Oculto.pdf")
+
+
+@app.route("/etapa6/descarga/<nombre>")
+def etapa6_descarga(nombre):
+    if nombre not in ETAPA6_DESCARGAS:
+        return render_template("base.html", active=""), 404
+    sub, archivo = ETAPA6_DESCARGAS[nombre]
+    return send_from_directory(os.path.join(ETAPA6_DIR, sub), archivo, as_attachment=True)

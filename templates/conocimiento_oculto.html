@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Etapa 6 — Conocimiento oculto{% endblock %}
+{% block content %}
+<style>
+.co-page .grid>*{min-width:0}
+.co-page .table-wrap{max-width:100%}
+.co-page .chip{white-space:normal}
+.co-page code{overflow-wrap:anywhere}
+</style>
+<div class="co-page">
+<div class="page-head">
+  <span class="eyebrow">Etapa 6</span>
+  <h1 class="page-title">Conocimiento oculto</h1>
+  <p class="page-desc">Tres análisis hechos en Orange Data Mining: modelos supervisados para anticipar grandes eventos de desplazamiento, clustering de 116 países y análisis de texto de comentarios de YouTube. Aquí está la síntesis; el detalle, con capturas, está en el informe técnico.</p>
+</div>
+
+<section class="block">
+  <div class="grid grid-3">
+    <div class="stat-card"><div class="stat-label">Mejor modelo</div><div class="stat-value md-kv">Regresión logística</div>
+      <div class="md-unit">AUC 0,901 (validación cruzada) · 0,921 hacia adelante</div><div class="md-note">Probabilidad de ser mejor que el árbol en AUC: 0,997</div></div>
+    <div class="stat-card"><div class="stat-label">Clustering</div><div class="stat-value md-kv">2 grupos de 58 países</div>
+      <div class="md-unit">Silhouette 0,382 (k = 2)</div><div class="md-note">Estructura débil: los países forman un continuo</div></div>
+    <div class="stat-card"><div class="stat-label">Comentarios de YouTube</div><div class="stat-value md-kv">126 útiles de 133</div>
+      <div class="md-unit">Extraídos el 5-nov-2026</div><div class="md-note">37 de 126 vienen de contexto escolar</div></div>
+  </div>
+  <p class="body-text" style="margin-top:12px;">
+    {% if informe_existe %}<a class="btn" href="{{ url_for('etapa6_informe') }}">⬇ Descargar informe técnico (PDF)</a>{% endif %}
+    {% if video_url %}<a class="btn" href="{{ video_url }}" target="_blank" rel="noopener">▶ Ver video de sustentación</a>
+    {% else %}<span class="chip">Video de sustentación: se publicará próximamente</span>{% endif %}
+  </p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>A. Modelos supervisados</h2>
+  <p class="body-text"><strong>Pregunta:</strong> ¿un país superará los 100.000 nuevos desplazamientos en un año, a partir de su historial previo? Es un problema de <strong>clasificación binaria</strong> (objetivo <code>gran_evento</code>: Si/No) con 1.816 filas país–año–causa; 29 % son «Si», así que predecir siempre «No» daría 71 % de exactitud. Por eso se mira el recall y el F1 de la clase «Si».</p>
+  <div class="grid grid-2">
+    <div class="card"><div class="source-title">Validación cruzada (10 particiones, estratificada)</div>
+      <div class="table-wrap"><table class="md-table"><thead><tr><th>Modelo</th><th>AUC</th><th>F1</th><th>Recall</th><th>MCC</th></tr></thead><tbody>
+        <tr><th>Tree</th><td>0,869</td><td>0,719</td><td>0,662</td><td>0,622</td></tr>
+        <tr><th>Random Forest*</th><td>0,880</td><td>0,713</td><td>0,675</td><td>0,607</td></tr>
+        <tr><th>Regresión logística</th><td><b>0,901</b></td><td><b>0,731</b></td><td><b>0,694</b></td><td><b>0,630</b></td></tr></tbody></table></div></div>
+    <div class="card"><div class="source-title">Prueba hacia adelante (entrena ≤ 2020, prueba 2021–2024)</div>
+      <div class="table-wrap"><table class="md-table"><thead><tr><th>Modelo</th><th>AUC</th><th>F1</th><th>Recall</th><th>MCC</th></tr></thead><tbody>
+        <tr><th>Tree</th><td>0,864</td><td>0,719</td><td>0,680</td><td>0,619</td></tr>
+        <tr><th>Random Forest*</th><td>0,879</td><td>0,720</td><td>0,652</td><td>0,630</td></tr>
+        <tr><th>Regresión logística</th><td><b>0,921</b></td><td><b>0,752</b></td><td><b>0,729</b></td><td><b>0,658</b></td></tr></tbody></table></div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><div class="source-title">F1 y recall por modelo</div><div class="md-chart" style="height:260px"><canvas id="chM"></canvas></div></div>
+  <p class="body-text md-tight" style="margin-top:10px"><strong>Decisión:</strong> se elige la <strong>regresión logística</strong>: mejor AUC, F1, recall y MCC en ambas pruebas, detecta más grandes eventos reales (132 de 181 hacia adelante) y es interpretable. La variable más influyente es el flujo medio previo del país (coeficiente +1,44); el conflicto empuja la probabilidad al alza frente a los desastres. El desempeño se mantiene al predecir años posteriores a los del entrenamiento.</p>
+  <p class="md-note">* El Random Forest se configuró con solo 5 árboles y profundidad 3, por lo que la comparación con ese modelo no es concluyente.</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>B. Clustering de países</h2>
+  <p class="body-text"><strong>Pregunta:</strong> ¿qué perfiles de país se distinguen por su desplazamiento reciente (2017–2024)? Variables: flujo por conflicto, flujo por desastres, stock 2024 y % de menores, en logaritmo y estandarizadas. No se usa el objetivo del apartado A. Algoritmo: k-Means, k elegido con silhouette.</p>
+  <div class="grid grid-2">
+    <div class="card"><div class="source-title">Silhouette por número de grupos</div><div class="md-chart" style="height:240px"><canvas id="chS"></canvas></div>
+      <div class="md-note">k = 2 tiene el mayor puntaje; todos son menores que 0,5.</div></div>
+    <div class="card"><div class="source-title">Los dos grupos (58 países cada uno)</div>
+      <div class="table-wrap"><table class="md-table md-left"><thead><tr><th>Grupo</th><th>Qué lo distingue</th></tr></thead><tbody>
+        <tr><th>C1 · Bajo desplazamiento</th><td>Poco o ningún desplazamiento por conflicto, menor stock, menos desastres y menos menores. Ej.: Argentina, Australia, Canadá, Chile.</td></tr>
+        <tr><th>C2 · Desplazamiento alto y multicausal</th><td>Más conflicto, mayor stock, más desastres y más menores. Ej.: Afganistán, Burkina Faso, RD Congo, Bangladesh.</td></tr></tbody></table></div>
+      <div class="md-note">El conflicto es lo que más separa los grupos (t = 15,98), seguido del stock (13,63). Angola y China están en C2 sin desplazamiento por conflicto.</div></div>
+  </div>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>C. Comentarios de YouTube</h2>
+  <div class="grid grid-2">
+    <div class="card"><div class="source-title">Procedimiento</div>
+      <ul class="body-text md-tight" style="margin:6px 0 0 0;padding-left:18px">
+        <li>Video «Desplazamiento humano» (<a href="https://www.youtube.com/watch?v=C8Rl59OtF6o" target="_blank" rel="noopener">enlace</a>), indicado por el autor.</li>
+        <li>Extracción el 5-nov-2026 con la API de YouTube (<code>commentThreads</code>), comentarios de primer nivel, sin datos de autores.</li>
+        <li>133 comentarios; se quitaron 2 vacíos y 5 duplicados → <strong>126</strong>.</li>
+        <li>Orange: Preprocess Text → Word Cloud, Bag of Words → Topic Modelling (LDA, 4 temas).</li>
+      </ul></div>
+    <div class="card"><div class="source-title">Qué dicen (conteo por palabras clave, 126 comentarios)</div>
+      <div class="table-wrap"><table class="md-table md-left"><thead><tr><th>Asunto</th><th>Comentarios</th></tr></thead><tbody>
+        <tr><th>Tarea, examen, maestra, colegio</th><td>37</td></tr>
+        <tr><th>Migración / migrar</th><td>36</td></tr>
+        <tr><th>Economía, trabajo, pobreza</th><td>15</td></tr>
+        <tr><th>Guerra, conflicto, violencia</th><td>10</td></tr>
+        <tr><th>«Forzado» / «desplazamiento»</th><td>6 / 4</td></tr></tbody></table></div></div>
+  </div>
+  <p class="body-text md-tight" style="margin-top:10px"><strong>Información nueva frente a los datos oficiales:</strong> en este video la conversación gira en torno a la migración en general (causas laborales, destino en Estados Unidos) y mucho menos al desplazamiento forzado. Los 4 temas de LDA separan los comentarios de tarea escolar de los que hablan de causas y tipos de migración; uno de ellos quedó contaminado por ruido que el filtro no eliminó.</p>
+  <p class="md-note">Representatividad: 126 comentarios de un solo video, de quienes eligieron comentar; casi un tercio son de estudiantes. No representan a la población. No se ejecutaron sentimiento, embeddings, Word Enrichment ni Concordance.</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Conclusiones integradas</h2>
+  <div class="grid grid-2">
+    <div class="card"><div class="source-title">✔ Respaldado por evidencia</div>
+      <ul class="body-text md-tight" style="margin:6px 0 0 0;padding-left:18px">
+        <li>Un gran evento se puede anticipar con el historial previo (AUC 0,90–0,92).</li>
+        <li>El desempeño se mantiene hacia adelante (2021–2024).</li>
+        <li>El mejor predictor es el flujo medio previo del país.</li>
+        <li>Los 116 países se dividen en dos perfiles de 58; el conflicto los separa más.</li>
+        <li>En los comentarios analizados predomina la migración general sobre el desplazamiento forzado.</li></ul></div>
+    <div class="card"><div class="source-title">⚠ Hipótesis (no comprobadas)</div>
+      <ul class="body-text md-tight" style="margin:6px 0 0 0;padding-left:18px">
+        <li>El público confunde migración con desplazamiento forzado (solo se vio en un video).</li>
+        <li>C2 requiere respuestas humanitarias prolongadas y C1 vigilancia de eventos puntuales.</li>
+        <li>Un Random Forest mejor configurado podría igualar a la regresión logística.</li></ul></div>
+  </div>
+  <p class="body-text md-tight" style="margin-top:10px"><strong>Decisión sustentada:</strong> usar la regresión logística como alerta temprana priorizando el recall (49 eventos no detectados frente a 38 falsas alarmas en la prueba hacia adelante) y diferenciar la respuesta según el perfil de país.</p>
+</section>
+
+<section class="block">
+  <h2 class="block-title"><span class="dot"></span>Archivos para reproducir</h2>
+  <div class="grid grid-3">
+    <div class="card"><div class="source-title">Orange</div><p class="body-text md-tight"><a href="{{ url_for('etapa6_descarga', nombre='etapa6_orange.ows') }}">etapa6_orange.ows</a> con los tres flujos.</p></div>
+    <div class="card"><div class="source-title">Datos</div><p class="body-text md-tight">
+      <a href="{{ url_for('etapa6_descarga', nombre='supervisado_gran_evento.csv') }}">supervisado_gran_evento.csv</a><br>
+      <a href="{{ url_for('etapa6_descarga', nombre='clustering_paises.csv') }}">clustering_paises.csv</a> · <a href="{{ url_for('etapa6_descarga', nombre='clustering_paises_log.csv') }}">con log</a><br>
+      <a href="{{ url_for('etapa6_descarga', nombre='comentarios_youtube.csv') }}">comentarios_youtube.csv</a> (sin autores)</p></div>
+    <div class="card"><div class="source-title">Código de extracción</div><p class="body-text md-tight"><a href="{{ url_for('etapa6_descarga', nombre='extraer_comentarios_youtube.py') }}">extraer_comentarios_youtube.py</a>. La clave de API se lee de una variable de entorno y no se publica.</p></div>
+  </div>
+  <p class="md-note">Fuentes: IDMC (GIDD y SADD) y comentarios públicos de YouTube. Herramienta: Orange Data Mining 3.40.</p>
+</section>
+
+<script>
+(function(){
+  Chart.defaults.color='#c9d2e8'; Chart.defaults.borderColor='rgba(255,255,255,.08)';
+  var nf=new Intl.NumberFormat('es-CO',{minimumFractionDigits:2,maximumFractionDigits:3});
+  var base={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:function(x){return x.dataset.label+': '+nf.format(x.parsed.y);}}}},scales:{y:{beginAtZero:true,max:1}}};
+  new Chart(document.getElementById('chM'),{type:'bar',data:{labels:['Tree','Random Forest','Reg. logística'],datasets:[
+    {label:'F1 · validación cruzada',data:[0.719,0.713,0.731],backgroundColor:'#5b8cff'},
+    {label:'F1 · hacia adelante',data:[0.719,0.720,0.752],backgroundColor:'#9db8ff'},
+    {label:'Recall · validación cruzada',data:[0.662,0.675,0.694],backgroundColor:'#f2a65a'},
+    {label:'Recall · hacia adelante',data:[0.680,0.652,0.729],backgroundColor:'#f7cfa3'}]},options:base});
+  new Chart(document.getElementById('chS'),{type:'bar',data:{labels:['k=2','k=3','k=4','k=5','k=6','k=7','k=8'],datasets:[
+    {label:'Silhouette',data:[0.382,0.285,0.270,0.250,0.274,0.299,0.315],backgroundColor:['#5b8cff','#3b4a73','#3b4a73','#3b4a73','#3b4a73','#3b4a73','#3b4a73']}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(x){return 'Silhouette: '+nf.format(x.parsed.y);}}}},scales:{y:{beginAtZero:true,max:0.5}}}});
+})();
+</script>
+</div>
+{% endblock %}
