@@ -130,3 +130,16 @@ python app.py                     # abrir /analisis-multidimensional
 ```
 
 Si `data/estrella.db` no existe, la aplicación la construye sola al abrir la sección (el archivo está en `.gitignore` porque se regenera desde `data/dataset_tratado_etapa3.csv`).
+
+## Etapa 6 — Conocimiento oculto (Orange Data Mining)
+
+Sección de la aplicación: `/conocimiento-oculto`. Contenido de `etapa6/`:
+
+| Carpeta | Contenido |
+|---|---|
+| `etapa6/orange/etapa6_orange.ows` | Flujos de Orange: modelos supervisados, clustering y texto de YouTube |
+| `etapa6/datos/` | `supervisado_gran_evento.csv`, `clustering_paises.csv`, `clustering_paises_log.csv`, `comentarios_youtube.csv` (sin autores) |
+| `etapa6/youtube/extraer_comentarios_youtube.py` | Extracción con la API de YouTube; la clave se lee de la variable de entorno `YOUTUBE_API_KEY` |
+| `etapa6/informe/` | Informe técnico en PDF |
+
+Para reproducir: abrir el `.ows` en Orange 3.40 y apuntar cada widget File / CSV File Import al CSV correspondiente. Para extraer comentarios: `YOUTUBE_API_KEY=... python etapa6/youtube/extraer_comentarios_youtube.py ID_DEL_VIDEO`. El enlace al video de sustentación se configura en `VIDEO_ETAPA6_URL` (`app.py`).

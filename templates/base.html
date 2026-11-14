@@ -148,6 +148,21 @@
       </nav>
     </div>
 
+    <div class="stage-group{{ ' open' if active=='co' else '' }}" data-stage="6">
+      <div class="stage-head" role="button" tabindex="0" aria-expanded="{{ 'true' if active=='co' else 'false' }}">
+        <span class="stage-num">6</span>
+        <span class="stage-text"><span class="stage-label">Etapa 6</span><span class="stage-sub">Conocimiento oculto</span></span>
+        <span class="stage-progress">1/1</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <nav class="nav">
+        <a href="{{ url_for('conocimiento_oculto') }}" class="{{ 'active' if active=='co' else '' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/><path d="M8.5 11h5M11 8.5v5"/></svg>
+          Conocimiento oculto
+        </a>
+      </nav>
+    </div>
+
     <div class="sidebar-footer">
       Proyecto individual · Minería de Datos<br>
       Rama: <code>main</code><br>
